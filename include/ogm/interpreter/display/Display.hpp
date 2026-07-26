@@ -214,6 +214,9 @@ public:
     bool window_close_requested();
     bool window_has_focus(); // NEW FEATURE (signature: annika marie schlögel)
 
+    bool get_fullscreen(); // NEW FEATURE (signature: annika marie schlögel)
+    void set_fullscreen(bool fullscreen); // NEW FEATURE (signature: annika marie schlögel)
+
     // swap back and front buffer, displaying the buffer.
     void flip();
 

@@ -2504,6 +2504,46 @@ void Display::set_window_size(real_t w, real_t h)
     #endif
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// returns if GML window is in fullscreen mode
+bool Display::get_fullscreen()
+{
+#ifndef EMSCRIPTEN
+    if (!g_window)
+    {
+        return false;
+    }
+
+    return (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
+#else
+    return false;
+#endif
+}
+
+// sets/unsets GML window to fullscreen
+void Display::set_fullscreen(bool fullscreen)
+{
+#ifndef EMSCRIPTEN
+    if (!g_window)
+    {
+        return;
+    }
+
+    Uint32 flags = fullscreen
+        ? SDL_WINDOW_FULLSCREEN_DESKTOP
+        : 0;
+
+    if (SDL_SetWindowFullscreen(g_window, flags) != 0)
+    {
+        SDL_Log(
+            "SDL_SetWindowFullscreen failed: %s",
+            SDL_GetError()
+        );
+    }
+#endif
+}
+// NEW FEATURE END
+
 bool Display::get_joysticks_supported()
 {
     return true;

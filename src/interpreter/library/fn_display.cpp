@@ -30,6 +30,22 @@ void ogm::interpreter::fn::window_set_size(VO out, V x, V y)
     frame.m_display->set_window_size(x.castCoerce<real_t>(), y.castCoerce<real_t>());
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// function to set window size and position at once
+void ogm::interpreter::fn::window_set_rectangle(VO out, V x, V y, V w, V h)
+{
+    frame.m_display->set_window_position(
+        x.castCoerce<real_t>(),
+        y.castCoerce<real_t>()
+    );
+
+    frame.m_display->set_window_size(
+        w.castCoerce<real_t>(),
+        h.castCoerce<real_t>()
+    );
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::display_get_width(VO out)
 {
     out = static_cast<real_t>(frame.m_display->get_display_dimensions().x);
@@ -60,11 +76,20 @@ void ogm::interpreter::fn::window_set_colour(VO out, V c)
     frame.m_display->set_clear_colour(c.castCoerce<uint32_t>());
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// wrapper was non-functional, now it calls the newly implemented function
 void ogm::interpreter::fn::window_get_fullscreen(VO out)
 {
-    // not implemented yet.
-    out = false;
+    out = frame.m_display->get_fullscreen();
 }
+// MODIFIED FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::window_set_fullscreen(VO out, V fullscreen)
+{
+    frame.m_display->set_fullscreen(fullscreen.cond());
+}
+// NEW FEATURE END
 
 // NEW FEATURE (signature: annika marie schlögel)
 void ogm::interpreter::fn::window_has_focus(VO out)
