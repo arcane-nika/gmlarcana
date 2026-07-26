@@ -357,3 +357,44 @@ void ogm::interpreter::fn::get_save_filename_ext(VO out, V filter, V fname,  V d
     out = "";
     #endif
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// some filesystem fuckery, cross-compatible with win/posix paths
+void ogm::interpreter::fn::filename_name(VO out, V fname)
+{
+    out = path_leaf(fname.castCoerce<std::string>());
+}
+
+void ogm::interpreter::fn::filename_path(VO out, V fname)
+{
+    out = path_directory(fname.castCoerce<std::string>());
+}
+
+void ogm::interpreter::fn::filename_ext(VO out, V fname)
+{
+    out = get_extension(fname.castCoerce<std::string>());
+}
+
+void ogm::interpreter::fn::filename_change_ext(VO out, V fname, V newext)
+{
+    std::string path = fname.castCoerce<std::string>();
+    std::string ext = newext.castCoerce<std::string>();
+
+    out = remove_extension(path) + ext;
+}
+
+void ogm::interpreter::fn::filename_dir(VO out, V fname)
+{
+    std::string dir =
+        trim_terminating_path_separator(
+            path_directory(fname.castCoerce<std::string>())
+        );
+
+    out = path_leaf(dir);
+}
+
+void ogm::interpreter::fn::filename_drive(VO out, V fname)
+{
+    out = path_drive(fname.castCoerce<std::string>());
+}
+// NEW FEATURE END

@@ -19,6 +19,15 @@ FNDEF0(file_find_next)
 FNDEF0(file_find_close)
 // NEW FEATURE END
 
+// NEW FEATURE (signature: annika marie schlögel)
+FNDEF1(filename_name, fname)
+FNDEF1(filename_path, fname)
+FNDEF1(filename_dir, fname)
+FNDEF2(filename_change_ext, fname, newext)
+FNDEF1(filename_ext, fname)
+FNDEF1(filename_drive, fname)
+// NEW FEATURE END
+
 FNDEF2(get_open_filename, filter, fname)
 FNDEF4(get_open_filename_ext, filter, fname, dir, caption)
 FNDEF2(get_save_filename, filter, fname)

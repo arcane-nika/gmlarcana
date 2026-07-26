@@ -125,6 +125,14 @@ std::string get_local_appdata()
 // NEW FEATURE END
 
 // NEW FEATURE (signature: annika marie schlögel)
+// there is no drive letter in posix paths
+std::string path_drive(const std::string&)
+{
+    return "";
+}
+// NEW FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
 std::vector<std::string> __glob(const std::string& search_path)
 {
     glob_t glob_result;

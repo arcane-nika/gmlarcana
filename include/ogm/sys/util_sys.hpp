@@ -60,13 +60,59 @@ inline std::string path_basename(const std::string& path) {
     return path_leaf(path);
 }
 
-// TODO: ignore extensions in path name.
-static inline std::string remove_extension(std::string path)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// made it so that it treats both win and posix paths right, not breaking at folders with "." in the name
+
+// LEGACY CODE
+/*static inline std::string remove_extension(std::string path)
 {
     std::vector<std::string> s;
     split(s, path, ".");
     return s[0];
+}*/
+
+// NEW CODE
+static inline std::string remove_extension(std::string path)
+{
+    size_t last_sep = path.find_last_of("/\\");
+    size_t last_dot = path.find_last_of('.');
+
+    if (last_dot == std::string::npos)
+    {
+        return path;
+    }
+
+#ifdef _WIN32
+    // Windows: ".bashrc" is treated as having an extension.
+    if (last_sep != std::string::npos && last_dot < last_sep)
+    {
+        return path;
+    }
+#else
+    // POSIX: ".bashrc" is a hidden file, not an extension.
+    if (last_sep == std::string::npos)
+    {
+        last_sep = 0;
+    }
+    else
+    {
+        ++last_sep;
+    }
+
+    if (last_dot == last_sep)
+    {
+        return path;
+    }
+
+    if (last_dot < last_sep)
+    {
+        return path;
+    }
+#endif
+
+    return path.substr(0, last_dot);
 }
+// MODIFIED FEATURE END
 
 static inline std::string get_extension(std::string path)
 {
@@ -183,6 +229,11 @@ std::string get_local_appdata();
 
 // creates a temporary directory.
 std::string create_temp_directory();
+
+// NEW FEATURE (signature: annika marie schlögel)
+// returns the drive information of the drive the file is stored on
+std::string path_drive(const std::string& path);
+// NEW FEATURE END
 
 // "base" should end with path separator.
 void list_paths(const std::string& base, std::vector<std::string>& out);

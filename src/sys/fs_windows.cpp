@@ -9,6 +9,7 @@
 #ifndef CPP_FILESYSTEM_ENABLED
 #include <shellapi.h>
 #include <fileapi.h>
+#include <cctype>
 #endif
 
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
@@ -118,6 +119,20 @@ std::string get_local_appdata()
     if (const char* value = getenv("LOCALAPPDATA"))
     {
         return value;
+    }
+
+    return "";
+}
+// NEW FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+std::string path_drive(const std::string& path)
+{
+    if (path.size() >= 2 &&
+        std::isalpha(static_cast<unsigned char>(path[0])) &&
+        path[1] == ':')
+    {
+        return path.substr(0, 2);
     }
 
     return "";
