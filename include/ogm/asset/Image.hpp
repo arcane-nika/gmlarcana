@@ -45,6 +45,8 @@ public:
     // loads image data from embedded image.
     void load_from_memory(const uint8_t* data, size_t len);
 
+    void apply_color_key_from_bottom_left(); // NEW FEATURE (signature: annika marie schlögel)
+
     size_t get_data_len() const
     {
         if (!m_data) return 0;

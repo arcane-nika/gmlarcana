@@ -73,6 +73,44 @@ void Image::load_from_memory(const unsigned char* data, size_t len)
     }
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void Image::apply_color_key_from_bottom_left()
+{
+    realize_data();
+
+    const int width = m_dimensions.x;
+    const int height = m_dimensions.y;
+
+    if (width <= 0 || height <= 0)
+    {
+        return;
+    }
+
+    const size_t key_offset = ((height - 1) * width) * 4;
+
+    const uint8_t r = m_data[key_offset + 0];
+    const uint8_t g = m_data[key_offset + 1];
+    const uint8_t b = m_data[key_offset + 2];
+
+    const size_t pixel_count = static_cast<size_t>(width) * height;
+
+    for (size_t i = 0; i < pixel_count; ++i)
+    {
+        uint8_t* px = m_data + i * 4;
+
+        if (
+            px[0] == r &&
+            px[1] == g &&
+            px[2] == b &&
+            px[3] != 0
+        )
+        {
+            px[3] = 0;
+        }
+    }
+}
+// NEW FEATURE END
+
 Image Image::cropped(const geometry::AABB<int32_t>& region)
 {
     realize_data();

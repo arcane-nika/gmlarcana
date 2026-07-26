@@ -28,13 +28,11 @@ void ogm::interpreter::fn::background_add(
     V removeback,
     V smooth)
 {
-    if (removeback.cond() || smooth.cond())
+    if (smooth.cond())
     {
         std::cout
         << "\033[38;5;208m"
-        << "WARNING: background_add(removeback="
-        << removeback.cond()
-        << ", smooth="
+        << "WARNING: background_add(smooth="
         << smooth.cond()
         << ") currently ignores these parameters."
         << "\033[0m\n";
@@ -54,6 +52,11 @@ void ogm::interpreter::fn::background_add(
     );
 
     bg->m_image.realize_data();
+
+    if (removeback.cond())
+    {
+        bg->m_image.apply_color_key_from_bottom_left();
+    }
 
     bg->m_dimensions = bg->m_image.m_dimensions;
 

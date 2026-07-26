@@ -21,11 +21,18 @@ using namespace ogm::interpreter::fn;
 
 #define frame staticExecutor.m_frame
 
+// PROBABLE BUG FIX (signature: annika marie schlögel)
 void ogm::interpreter::fn::sprite_exists(VO out, V vs)
 {
     asset_index_t index = vs.castCoerce<asset_index_t>();
-    out = !!frame.m_assets.get_asset<AssetBackground*>(index);
+
+    // LEGACY CODE
+    //out = !!frame.m_assets.get_asset<AssetBackground*>(index);
+
+    // NEW CODE
+    out = !!frame.m_assets.get_asset<AssetSprite*>(index);
 }
+// BUG FIX END
 
 void ogm::interpreter::fn::sprite_get_number(VO out, V vs)
 {
@@ -161,13 +168,11 @@ void ogm::interpreter::fn::sprite_create_from_surface(VO out, V surface, V vx, V
 
 void ogm::interpreter::fn::sprite_add(VO out, V fname, V vimgnum, V removeback, V smooth, V xorig, V yorig)
 {
-    if (removeback.cond() || smooth.cond())
+    if (smooth.cond())
     {
         std::cout
         << "\033[38;5;208m"
-        << "WARNING: sprite_add(removeback="
-        << removeback.cond()
-        << ", smooth="
+        << "WARNING: sprite_add(smooth="
         << smooth.cond()
         << ") currently ignores these parameters."
         << "\033[0m\n";
@@ -193,6 +198,11 @@ void ogm::interpreter::fn::sprite_add(VO out, V fname, V vimgnum, V removeback, 
         frame.m_fs.resolve_file_path(fname.castCoerce<std::string>())
     );
     image.realize_data();
+
+    if (removeback.cond())
+    {
+        image.apply_color_key_from_bottom_left();
+    }
     
     TexturePage* tpage = frame.m_display->m_textures.create_tpage_from_callback(
         [sprite]() -> asset::Image* {
