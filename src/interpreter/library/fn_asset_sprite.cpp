@@ -258,3 +258,14 @@ void ogm::interpreter::fn::sprite_add_from_surface(VO out, V index, V surface, V
     );
 }
 // MODIFIED FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::sprite_set_offset(VO out, V vs, V vx, V vy)
+{
+    AssetSprite* s = frame.get_asset_from_variable<AssetSprite>(vs);
+    ogm_assert(s);
+
+    s->m_offset.x = vx.castCoerce<coord_t>();
+    s->m_offset.y = vy.castCoerce<coord_t>();
+}
+// NEW FEATURE END

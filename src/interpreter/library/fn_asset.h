@@ -54,6 +54,7 @@ FNDEF3(sprite_set_speed, s, spd, spdtype)
 FNDEF9(sprite_create_from_surface, surface, x, y, w, h, removebg, smooth, xo, yo)
 FNDEF8(sprite_add_from_surface, sprite, surface, x, y, w, h, removebg, smooth)
 FNDEF6(sprite_add, sprite, imgnum, removebg, smooth, xo, yo)
+FNDEF3(sprite_set_offset, s, x, y) // NEW FEATURE (signature: annika marie schlögel)
 
 CONST(spritespeed_framespersecond, 0)
 CONST(spritespeed_framespergameframe, 1)

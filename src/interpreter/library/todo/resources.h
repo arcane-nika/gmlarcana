@@ -129,7 +129,7 @@ IGNORE_WARN(sprite_save_strip)
 IGNORE_WARN(sprite_set_alpha_from_sprite)
 IGNORE_WARN(sprite_set_cache_size)
 IGNORE_WARN(sprite_set_cache_size_ext)
-IGNORE_WARN(sprite_set_offset)
+// IGNORE_WARN(sprite_set_offset) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(sprite_set_speed)
 
 // background

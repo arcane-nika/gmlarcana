@@ -234,7 +234,7 @@ int umain (int argn, char** argv)
     #ifdef OGM_LICENSE_AVAILABLE
     std::cout << _ogm_license_ << std::endl;
     #else
-    std::cout << "OpenGML was not compiled with license information available.\n";
+    std::cout << "GMLarcana was not compiled with license information available.\n";
     #endif
     exit(0);
   }
@@ -638,7 +638,7 @@ int umain (int argn, char** argv)
           #ifdef IMGUI
           ogm::gui::run(&project);
           #else
-          std::cout << "OpenGML was not built with GUI support." << std::endl;
+          std::cout << "GMLarcana was not built with GUI support." << std::endl;
           exit(1);
           #endif
       }
