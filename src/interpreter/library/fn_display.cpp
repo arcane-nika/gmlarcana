@@ -105,6 +105,60 @@ void ogm::interpreter::fn::display_reset(VO out, V aa, V vsync)
     // TODO: anti-aliasing
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::device_mouse_x(VO out, V device)
+{
+    // TODO: include touch support
+    // literally ignore any other device (because GMLarcana does not support touch yet)
+    if (device.castCoerce<int32_t>() != 0)
+    {
+        out = 0;
+        return;
+    }
+
+    getv::mouse_x(out);
+}
+
+void ogm::interpreter::fn::device_mouse_y(VO out, V device)
+{
+    // TODO: include touch support
+    // literally ignore any other device (because GMLarcana does not support touch yet)
+    if (device.castCoerce<int32_t>() != 0)
+    {
+        out = 0;
+        return;
+    }
+
+    getv::mouse_y(out);
+}
+
+void ogm::interpreter::fn::device_mouse_x_to_gui(VO out, V device)
+{
+    // TODO: add proper gui coordinate system support
+    // just a compat wrapper now as the gui currently has no separate mouse coordinate system
+    if (device.castCoerce<int32_t>() != 0)
+    {
+        out = 0;
+        return;
+    }
+
+    getv::mouse_x(out);
+}
+
+void ogm::interpreter::fn::device_mouse_y_to_gui(VO out, V device)
+{
+    // TODO: add proper gui coordinate system support
+    // just a compat wrapper now as the gui currently has no separate mouse coordinate system
+    if (device.castCoerce<int32_t>() != 0)
+    {
+        out = 0;
+        return;
+    }
+
+    getv::mouse_y(out);
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::getv::mouse_x(VO out)
 {
     out = static_cast<real_t>(frame.m_display->get_mouse_coord_invm().x);

@@ -20,10 +20,10 @@ IGNORE_WARN(device_mouse_check_button_released)
 IGNORE_WARN(device_mouse_dbclick_enable)
 IGNORE_WARN(device_mouse_raw_x)
 IGNORE_WARN(device_mouse_raw_y)
-IGNORE_WARN(device_mouse_x)
-IGNORE_WARN(device_mouse_x_to_gui)
-IGNORE_WARN(device_mouse_y)
-IGNORE_WARN(device_mouse_y_to_gui)
+// IGNORE_WARN(device_mouse_x) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(device_mouse_x_to_gui) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(device_mouse_y) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(device_mouse_y_to_gui) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(display_get_dpi_x)
 IGNORE_WARN(display_get_dpi_y)
 // IGNORE_WARN(display_get_gui_height) // COMMENTED BECAUSE OF IMPLEMENTATION

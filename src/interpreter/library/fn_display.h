@@ -23,6 +23,13 @@ FNDEF0(window_mouse_get_y)
 
 FNDEF2(display_reset, aa, vsync)
 
+// NEW FEATURE (signature: annika marie schlögel)
+FNDEF1(device_mouse_x, device)
+FNDEF1(device_mouse_y, device)
+FNDEF1(device_mouse_x_to_gui, device)
+FNDEF1(device_mouse_y_to_gui, device)
+// NEW FEATURE END
+
 GETVAR(mouse_x)
 GETVAR(mouse_y)
 
