@@ -32,19 +32,69 @@ void ogm::interpreter::fn::parameter_string(VO out, V i)
     }
 }
 
-void ogm::interpreter::fn::environment_get_variable(VO out, V name)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// included overrides for xdg data systems (linux)
+
+// HALF-LEGACY CODE
+/*void ogm::interpreter::fn::environment_get_variable(VO out, V name)
 {
     std::string _name = name.castCoerce<std::string>();
+
+    #ifdef _WIN32
     if (const char* value = getenv(_name.c_str()))
     {
         out = std::string(value);
     }
     else
     {
-        // TODO: confirm.
-        out = -1.0;
+        out = "";
+    }
+    #else
+    if (_name == "LOCALAPPDATA")
+    {
+        if (const char* xdg = getenv("XDG_DATA_HOME"))
+            out = std::string(xdg);
+        else if (const char* home = getenv("HOME"))
+            out = std::string(home) + "/.local/share";
+        else
+            out = "";
+        return;
+    }
+
+    if (_name == "APPDATA")
+    {
+        if (const char* xdg = getenv("XDG_CONFIG_HOME"))
+            out = std::string(xdg);
+        else if (const char* home = getenv("HOME"))
+            out = std::string(home) + "/.config";
+        else
+            out = "";
+        return;
+    }
+
+    if (const char* value = getenv(_name.c_str()))
+    {
+        out = std::string(value);
+    }
+    else
+    {
+        out = "";
+    }
+    #endif
+}*/
+
+// NEW CODE
+void ogm::interpreter::fn::environment_get_variable(VO out, V name)
+{
+    std::string _name = name.castCoerce<std::string>();
+
+    if (_name == "LOCALAPPDATA")
+    {
+        out = get_local_appdata();
+        return;
     }
 }
+// MODIFIED FEATURE END
 
 namespace
 {

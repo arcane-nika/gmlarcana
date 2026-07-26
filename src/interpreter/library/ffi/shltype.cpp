@@ -10,9 +10,19 @@ static char shlheader[0x100];
 SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
 {
     SharedLibraryType shtype;
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    std::cout << "Checking:  " << path << std::endl;
+    std::cout << "Exists:    " << path_exists(path) << std::endl;
+    std::cout << "Readable:  " << can_read_file(path) << std::endl;
+    // DEBUG BLOCK END
     
     if (path_exists(path) && can_read_file(path))
     {
+        // DEBUG BLOCK (signature: annika marie schlögel)
+        std::cout << "Entered detection block" << std::endl;
+        // DEBUG BLOCK END
+
         memset(shlheader, 0, sizeof(shlheader));
         
         if (get_extension(path) == ".so"s)

@@ -73,6 +73,10 @@ void zugbruecke_free_addr(ExternalDefinition& ed)
 
 bool zugbruecke_init()
 {
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cout << ">>> ENTERED zugbruecke_init()" << std::endl;
+    // DEBUG PRINT END
+
     if (g_zugbruecke_setup_complete)
     {
         return g_zugbruecke_available;
@@ -87,6 +91,30 @@ bool zugbruecke_init()
 
     // setup python
     Py_Initialize();
+
+    // DEBUG BLOCK (signature: annika marie schlögel, changes: 3)
+    PyRun_SimpleString(
+        "import sys, multiprocessing.reduction\n"
+        "f = open('/tmp/opengml_python.txt', 'w')\n"
+        "f.write('exe=' + repr(sys.executable) + '\\n')\n"
+        "f.write('ver=' + sys.version + '\\n')\n"
+        "f.write('reduction=' + multiprocessing.reduction.__file__ + '\\n')\n"
+        "f.write('path=\\n' + '\\n'.join(sys.path) + '\\n')\n"
+        "f.close()\n"
+    );
+
+    PyRun_SimpleString(
+    "from zugbruecke.core.config import Config\n"
+    "import os\n"
+    "\n"
+    "cfg = Config()\n"
+    "print('========== CONFIG ==========')\n"
+    "print(cfg['arch'])\n"
+    "print(cfg['pythonversion'])\n"
+    "print(os.environ.get('ZUGBRUECKE_ARCH'))\n"
+    "print('============================')\n"
+    );
+    // DEBUG BLOCK END
 
     // TODO: should be cleaned up witha call to Py_Finalize().
 
@@ -108,7 +136,18 @@ bool zugbruecke_init()
     PyObject_Call(chdir, newDirArgs, nullptr);
     #endif
     
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cout << "Importing zugbruecke.ctypes..." << std::endl;
+    // DEBUG PRINT END
+
     g_zugbruecke = PyImport_Import(pName);
+
+    // DEBUG PRINT (signature: annika marie schlögel)
+    PyRun_SimpleString(
+    "import zugbruecke.ctypes as ctypes\n"
+    "print(ctypes)\n"
+    );
+    // DEBUG PRINT
     
     #if 0
     PyObject_Call(chdir, prevDirArgs, nullptr);
@@ -126,6 +165,12 @@ bool zugbruecke_init()
 
     if (!g_zugbruecke)
     {
+        // DEBUG PRINT (signature: annika marie schlögel)
+        std::cerr << "=== Python exception ===" << std::endl;
+        PyErr_Print();
+        std::cerr << "========================" << std::endl;
+        // DEBUG PRINT END
+
         std::cerr << "Failed to load module zugbruecke.ctypes for running win32 dll.\n";
         std::cerr << "Try running `python3 -m pip install zugbruecke`.\n";
         return false;

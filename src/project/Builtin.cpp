@@ -36,7 +36,7 @@ var step_end_script = asset_get_index("_ogm_post_simulation_")
 application_surface_enable(true);
 application_surface_draw_enable(true);
 
-var display = ogm_display_create(default_width, default_height, "OpenGML");
+var display = ogm_display_create(default_width, default_height, "GMLarcana");
 if (ogm_ptr_is_null(display))
 {
     show_debug_message("Could not create display.");

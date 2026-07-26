@@ -68,11 +68,23 @@ namespace ogm::interpreter
         // ownership note: self-deletes if refcount decremented to zero.
         struct COWGOAStringData
         {
-            explicit COWGOAStringData(const std::string_view& s)
+            // BUG FIX (signature: annika marie schlögel)
+
+            // LEGACY CODE (front(), back() are undefined on empty std::string_view, so substitute)
+            /*explicit COWGOAStringData(const std::string_view& s)
                 : m_str(&s.front(), &s.back() + 1)
                 , m_refcount(1)
                 , m_shared_range(0, s.length())
+            { }*/
+
+            // NEW CODE (now using begin(), end())
+            explicit COWGOAStringData(const std::string_view& s)
+                : m_str(s.begin(), s.end())
+                , m_refcount(1)
+                , m_shared_range(0, s.length())
             { }
+
+            // BUG FIX END
 
             std::string_view get_view(const Range& r) const
             {

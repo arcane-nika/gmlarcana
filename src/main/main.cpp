@@ -36,7 +36,7 @@
 #include "interpreter/library/library.h"
 
 #ifndef VERSION
-    #define VERSION OpenGML (development build)
+    #define VERSION GMLarcana (development build)
 #endif
 
 #define _STR(A) #A
@@ -453,6 +453,10 @@ int umain (int argn, char** argv)
                   return 7;
               }
               ogm::interpreter::staticExecutor.m_frame.m_fs.set_included_directory(acc.m_included_directory);
+              // NEW FEATURE (signature: annika marie schlögel)
+              ogm::interpreter::staticExecutor.m_frame.m_fs.set_project_name(acc.m_project_name);
+              // NEW FEATURE END
+
               if (verbose) std::cout << "Build complete." << std::endl;
           }
       }

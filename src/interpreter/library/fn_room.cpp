@@ -74,6 +74,21 @@ void ogm::interpreter::fn::getv::room_height(VO out)
     out = static_cast<real_t>(frame.m_data.m_room_dimension.y);
 }
 
+
+// IMPLEMENTED SETTERS AS room_width NEEDS TO BE MUTABLE (signature: annika marie schlögel)
+void ogm::interpreter::fn::setv::room_width(V value)
+{
+    frame.m_data.m_room_dimension.x =
+    value.castCoerce<decltype(frame.m_data.m_room_dimension.x)>();
+}
+
+// IMPLEMENTED SETTERS AS room_height NEEDS TO BE MUTABLE (signature: annika marie schlögel)
+void ogm::interpreter::fn::setv::room_height(V value)
+{
+    frame.m_data.m_room_dimension.y =
+    value.castCoerce<decltype(frame.m_data.m_room_dimension.y)>();
+}
+
 void ogm::interpreter::fn::setv::room_speed(V c)
 {
     frame.m_data.m_desired_fps = c.castCoerce<real_t>();

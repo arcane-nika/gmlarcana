@@ -936,7 +936,7 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
     set_matrix_pre_model();
 
     // enable alpha blending
-    glEnable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D); // BUG FIX TEST, COMMENT (signature: annika marie schlögel)
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
     glEnable( GL_BLEND );
 
@@ -1244,6 +1244,20 @@ bool Display::window_close_requested()
 {
     return g_sdl_closing;
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+bool Display::window_has_focus()
+{
+    #ifndef EMSCRIPTEN
+        if (!g_window)
+            return false;
+
+        return (SDL_GetWindowFlags(g_window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    #else
+        return true;
+    #endif
+}
+// NEW FEATURE END
 
 void Display::set_clear_colour(uint32_t z)
 {
@@ -2597,6 +2611,9 @@ uint32_t Display::make_vertex_format()
     vfp->m_attributes.clear();
     vfp->m_size = 0;
     vfp->m_vao = 0;
+
+    std::cout << "make_vertex_format -> " << id << '\n'; // DEBUG LINE (signature: annika marie schlögel)
+
     return id;
 }
 
@@ -2765,6 +2782,8 @@ void Display::freeze_vertex_buffer(uint32_t id)
 
 void Display::associate_vertex_buffer_format(uint32_t vb_id, uint32_t vf_id)
 {
+    std::cout << "associate vb=" << vb_id << " vf=" << vf_id << '\n'; // DEBUG LINE (signature: annika marie schlögel)
+
     if (vb_id >= g_vertex_buffers.size())
     {
         throw MiscError("vertex buffer does not exist");

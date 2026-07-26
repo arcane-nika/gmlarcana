@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ogm/asset/AssetTable.hpp"
 #include "ogm/asset/Image.hpp"
 
@@ -205,6 +207,7 @@ public:
 
     void resize_surface(surface_id_t id, ogm::geometry::Vector<uint32_t> dimensions);
     void free_surface(surface_id_t id);
+    void free_texture(ImageDescriptor id); // NEW FEATURE (signature: annika marie schlögel)
 
     // TODO: create actual proper big texture pages and then bind images to those?
 

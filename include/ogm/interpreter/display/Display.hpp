@@ -212,6 +212,7 @@ public:
     void enable_scissor(coord_t x1, coord_t y1, coord_t x2, coord_t y2);
 
     bool window_close_requested();
+    bool window_has_focus(); // NEW FEATURE (signature: annika marie schlögel)
 
     // swap back and front buffer, displaying the buffer.
     void flip();

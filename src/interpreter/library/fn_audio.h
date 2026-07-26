@@ -22,6 +22,7 @@ FNDEF1(audio_sound_get_gain, s)
 FNDEF1(audio_master_gain, v)
 FNDEF1(audio_channel_num, n)
 FNDEF0(audio_system)
+FNDEF1(audio_create_stream, path) // NEW FEATURE (signature: annika marie schlögel)
 
 // sound buffers
 FNDEF6(audio_create_buffer_sound, buffer, fmt, sample_rate, offset, length, channels)

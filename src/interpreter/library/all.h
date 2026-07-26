@@ -22,6 +22,7 @@
 #include "fn_event.h"
 #include "fn_external.h"
 #include "fn_filesystem.h"
+#include "fn_file_attributes.h" // NEW FEATURE (signature: annika marie schlögel)
 #include "fn_game.h"
 #include "fn_http.h"
 #include "fn_keyboard.h"

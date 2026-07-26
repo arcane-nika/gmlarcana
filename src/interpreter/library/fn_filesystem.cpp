@@ -32,6 +32,27 @@ void ogm::interpreter::fn::file_exists(VO out, V f)
     out = frame.m_fs.file_exists(f.castCoerce<std::string>());
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// WRAPPERS FOR THE C FUNCTIONS FOR USE IN GML
+void ogm::interpreter::fn::file_find_first(VO out, V pattern, V attributes)
+{
+    out = frame.m_fs.file_find_first(
+        pattern.castCoerce<std::string>(),
+                                     attributes.castCoerce<int32_t>()
+    );
+}
+
+void ogm::interpreter::fn::file_find_next(VO out)
+{
+    out = frame.m_fs.file_find_next();
+}
+
+void ogm::interpreter::fn::file_find_close(VO out)
+{
+    frame.m_fs.file_find_close();
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::file_text_open_read(VO out, V f)
 {
     out = static_cast<real_t>(frame.m_fs.open_file<FileAccessType::read>(f.castCoerce<std::string>()));
@@ -135,6 +156,24 @@ void ogm::interpreter::fn::getv::temp_directory(VO out)
     // TODO: confirm
     out = trim_terminating_path_separator(get_temp_root());
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// includes the read-only constant game_save_id which directs to the project folder as this is crucial for some GML projects
+void ogm::interpreter::fn::getv::game_save_id(VO out)
+{
+    // Temporary implementation.
+    // Later this should become GameMaker's platform save directory.
+    // Probably works now (signature: annika marie schlögel)
+    std::string dir = get_local_appdata();
+
+    dir += PATH_SEPARATOR;
+    dir += frame.m_fs.get_project_name();
+
+    std::cout << "game_save_id = " << dir << '\n'; // DEBUG LINE (signature: annika marie schlögel)
+
+    out = trim_terminating_path_separator(dir);
+}
+// NEW FEATURE END
 
 void ogm::interpreter::fn::directory_exists(VO out, V dir)
 {

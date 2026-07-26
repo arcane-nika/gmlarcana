@@ -8,6 +8,8 @@
 #include "ogm/interpreter/Executor.hpp"
 #include "ogm/interpreter/execute.hpp"
 #include <functional>
+#include <filesystem>
+#include <unordered_map>
 
 #ifdef PELOADER
     extern "C"
@@ -69,6 +71,11 @@ void ogm::interpreter::fn::external_define(VO out, byte argc, const Variable* ar
 
     // marshall arguments
     string_t path = staticExecutor.m_frame.m_fs.resolve_file_path(argv[0].castCoerce<string_t>());
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    std::cout << "Resolved path: " << path << std::endl;
+    // DEBUG BLOCK END
+
     string_t fnname = argv[1].castCoerce<string_t>();
     CallType ct = static_cast<CallType>(argv[2].castCoerce<size_t>());
     VariableType rt = static_cast<VariableType>(argv[3].castCoerce<size_t>());
@@ -85,8 +92,57 @@ void ogm::interpreter::fn::external_define(VO out, byte argc, const Variable* ar
     }
 
     std::string orgpath = path;
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    std::cout << "Current working directory: "
+    << std::filesystem::current_path()
+    << std::endl;
+    // DEBUG BLOCK END
+
     path_transform(path); // try loading .so instead of .dll if possible
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    std::cout << "Original path:    " << orgpath << std::endl;
+    std::cout << "Transformed path: " << path << std::endl;
+    // DEBUG BLOCK END
+
+    // ACTUAL FIX BLOCK - SEARCHING FOR DLLS ALSO IN SUBFOLDERS (signature: annika marie schlögel, changes 2)
+    if (!std::filesystem::exists(path))
+    {
+        std::filesystem::path extdir =
+        std::filesystem::current_path() / "extensions";
+        std::cout << "Searching in " << extdir << std::endl;
+
+        if (std::filesystem::exists(extdir))
+        {
+            for (const auto& entry :
+                std::filesystem::recursive_directory_iterator(extdir))
+            {
+                if (!entry.is_regular_file())
+                    continue;
+
+                if (entry.path().filename() ==
+                    std::filesystem::path(path).filename())
+                {
+                    std::cout << "Resolved extension DLL: "
+                    << entry.path() << std::endl;
+
+                    path = entry.path().string();
+                    break;
+                }
+            }
+        }
+    }
+    // ACTUAL FIX BLOCK END
+
     SharedLibraryType shtype = getSharedLibraryTypeFromPath(path);
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    std::cout << "compatible = " << shtype.compatible() << std::endl;
+    std::cout << "platmatch  = " << shtype.platmatch() << std::endl;
+    std::cout << "os         = " << (int)shtype.os << std::endl;
+    // DEBUG BLOCK END
+
     if (!shtype.compatible())
     {
         throw MiscError("Unable to load incompatible dll: " + path);

@@ -177,6 +177,10 @@ std::string get_binary_directory();
 // returns the folder where temporary files go.
 std::string get_temp_root();
 
+// NEW FEATURE (signature: annika marie schlögel)
+// returns the appdata/local program folder (works for winfs and posix)
+std::string get_local_appdata();
+
 // creates a temporary directory.
 std::string create_temp_directory();
 

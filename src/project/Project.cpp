@@ -404,6 +404,10 @@ bool Project::build(bytecode::ProjectAccumulator& accumulator)
 
     accumulator.m_project_base_directory = m_root;
     accumulator.m_included_directory = m_root + "datafiles" + PATH_SEPARATOR;
+    // NEW FEATURE (signature: annika marie schlögel)
+    accumulator.m_project_name = path_leaf(remove_extension(remove_extension(m_project_file)));
+    std::cout << "project_name = " << accumulator.m_project_name << '\n'; // DEBUG LINE (signature: annika marie schlögel)
+    // NEW FEATURE END
     
     #define CHECK_ERROR_SET()           \
     if (m_error)                        \

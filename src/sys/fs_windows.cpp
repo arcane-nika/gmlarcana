@@ -111,6 +111,19 @@ std::string get_binary_directory()
     }
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// returns path to the appdata/local folder
+std::string get_local_appdata()
+{
+    if (const char* value = getenv("LOCALAPPDATA"))
+    {
+        return value;
+    }
+
+    return "";
+}
+// NEW FEATURE END
+
 #ifndef CPP_FILESYSTEM_ENABLED
 #define BUFFLEN 1024
 

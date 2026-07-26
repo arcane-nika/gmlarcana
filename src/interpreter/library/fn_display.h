@@ -7,6 +7,14 @@ FNDEF0(display_get_width)
 FNDEF0(display_get_height)
 FNDEF0(window_get_width)
 FNDEF0(window_get_height)
+FNDEF0(window_has_focus) // NEW FEATURE (signature: annika marie schlögel)
+
+// NEW FEATURE (signature: annika marie schlögel)
+FNDEF0(display_set_gui_maximise)
+FNDEF2(display_set_gui_size, w, h)
+FNDEF0(display_get_gui_width)
+FNDEF0(display_get_gui_height)
+// NEW FEATURE END
 
 FNDEF0(window_mouse_get_x)
 FNDEF0(window_mouse_get_y)

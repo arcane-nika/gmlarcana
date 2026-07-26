@@ -61,6 +61,7 @@ FNDEF1(texture_set_interpolation, linear)
 // text
 FNDEF3(draw_text, x, y, text)
 FNDEF5(draw_text_ext, x, y, text, sep, w)
+FNDEF6(draw_text_transformed, x, y, text, xscale, yscale, angle) // NEW FEATURE (signature: annika marie schlögel)
 FNDEF8(draw_text_colour, x, y, text, c1, c2, c3, c4, alpha)
 FNDEF10(draw_text_ext_colour, x, y, text, sep, w, c1, c2, c3, c4, alpha)
 ALIAS(draw_text_colour, draw_text_color)

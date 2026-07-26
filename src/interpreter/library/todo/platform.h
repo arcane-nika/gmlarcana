@@ -26,14 +26,14 @@ IGNORE_WARN(device_mouse_y)
 IGNORE_WARN(device_mouse_y_to_gui)
 IGNORE_WARN(display_get_dpi_x)
 IGNORE_WARN(display_get_dpi_y)
-IGNORE_WARN(display_get_gui_height)
-IGNORE_WARN(display_get_gui_width)
+// IGNORE_WARN(display_get_gui_height) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(display_get_gui_width) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(display_get_orientation)
 IGNORE_WARN(display_mouse_get_x)
 IGNORE_WARN(display_mouse_get_y)
 IGNORE_WARN(display_mouse_set)
-IGNORE_WARN(display_set_gui_maximise)
-IGNORE_WARN(display_set_gui_size)
+// IGNORE_WARN(display_set_gui_maximise) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(display_set_gui_size) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(display_set_ui_visibility)
 IGNORE_WARN(gesture_double_tap_distance)
 IGNORE_WARN(gesture_double_tap_time)
@@ -57,7 +57,7 @@ IGNORE_WARN(gesture_pinch_distance)
 IGNORE_WARN(gesture_rotate_time)
 IGNORE_WARN(os_device)
 IGNORE_WARN(os_get_config)
-IGNORE_WARN(os_get_info)
+// IGNORE_WARN(os_get_info) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(os_get_language)
 IGNORE_WARN(os_get_region)
 IGNORE_WARN(os_is_network_connected)

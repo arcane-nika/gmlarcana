@@ -5,6 +5,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <filesystem>
+#include <optional>
+#include <iostream>
 
 namespace ogm { namespace interpreter
 {
@@ -87,12 +90,29 @@ namespace ogm { namespace interpreter
     // the save folder or in the included files directory.
     class Filesystem
     {
+        // NEW FEATURE (signature: annika marie schlögel)
+        // FILE SEARCH
+        struct FileSearch
+        {
+            std::vector<std::string> matches;
+            size_t index = 0;
+        };
+
+        std::optional<FileSearch> m_file_search;
+        // NEW FEATURE END
+
         // open files list
         std::vector<FileHandle> m_files;
 
-        // TODO: move this to %APPDATA% or wherever.
         std::string m_working_directory = "." + std::string(1, PATH_SEPARATOR);
         std::string m_included_directory = "";
+
+        // TODO: move this to %APPDATA% or wherever.
+        // NEW FEATURE (signature: annika marie schlögel)
+        // actually did this over project name and constructing the appdata path in game_save_id
+        std::string m_project_name = "";
+        // NEW FEATURE END
+
         SandboxImpl m_sandbox_impl;
         bool is_init=false;
 
@@ -117,6 +137,13 @@ namespace ogm { namespace interpreter
         // resolves sandbox path.
         std::string resolve_file_path(const std::string& path, bool write=false);
 
+        // NEW FEATURE (signature: annika marie schlögel)
+        // FUNCTION DECLARATIONS FOR FILE I/O
+        std::string file_find_first(const std::string& pattern, int attributes);
+        std::string file_find_next();
+        void file_find_close();
+        // NEW FEATURE END
+
         std::string get_included_directory()
         {
             return m_included_directory;
@@ -126,6 +153,19 @@ namespace ogm { namespace interpreter
         {
             m_included_directory = str;
         }
+
+        // NEW FEATURE (signature: annika marie schlögel)
+        void set_project_name(const std::string& str)
+        {
+            std::cout << "Filesystem project name = " << str << '\n'; // DEBUG LINE (signature: annika marie schlögel)
+            m_project_name = str;
+        }
+
+        const std::string& get_project_name() const
+        {
+            return m_project_name;
+        }
+        // NEW FEATURE END
 
     private:
         // checks for included files first, then checks other directories.

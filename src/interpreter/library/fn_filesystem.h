@@ -12,6 +12,13 @@ FNDEF1(file_text_eoln, file)
 FNDEF1(file_text_eof, file)
 FNDEF1(file_text_close, file)
 
+// NEW FEATURE (signature: annika marie schlögel)
+// DECLARATION FOR THE WRAPPERS
+FNDEF2(file_find_first, pattern, attributes)
+FNDEF0(file_find_next)
+FNDEF0(file_find_close)
+// NEW FEATURE END
+
 FNDEF2(get_open_filename, filter, fname)
 FNDEF4(get_open_filename_ext, filter, fname, dir, caption)
 FNDEF2(get_save_filename, filter, fname)
@@ -24,3 +31,4 @@ FNDEF1(directory_destroy, dir)
 GETVAR(working_directory)
 GETVAR(program_directory)
 GETVAR(temp_directory)
+GETVAR(game_save_id) // NEW FEATURE (signature: annika marie schlögel)

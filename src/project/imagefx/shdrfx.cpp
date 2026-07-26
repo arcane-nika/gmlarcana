@@ -29,7 +29,7 @@ namespace ogm::project::fx
             SDL_CreateWindowAndRenderer(1, 1, SDL_WINDOW_HIDDEN, &g_window, &g_renderer);
         #else
             g_window = SDL_CreateWindow(
-                "opengml compiler", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                "gmlarcana compiler", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         		1, 1, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
         #endif
 

@@ -196,6 +196,10 @@ void Project::process_extension(const char* extension_path)
         }
         else if (ends_with(path, ".dll") || ends_with(path, ".so") || ends_with(path, ".dylib"))
         {
+            // DEBUG BLOCK (signature: annika marie schlögel, changes: 2)
+            std::cout << "Extension path = " << path << std::endl;
+            // DEBUG BLOCK END
+
             std::set<std::string> proxies;
             proxies.insert(filename);
 
@@ -271,6 +275,12 @@ void Project::process_extension(const char* extension_path)
             {
                 m_extension_init_script_source += bc_name + "();\n";
             }
+
+            // DEBUG BLOCK (signature: annika marie schlögel)
+            std::cout << "\n===== GENERATED EXTENSION SCRIPT =====\n";
+            std::cout << ss_init_code.str();
+            std::cout << "\n======================================\n";
+            // DEBUG BLOCK END
 
             std::string name = "extension^" + bc_name;
             add_script(name, ss_init_code.str());

@@ -20,6 +20,64 @@ using namespace ogm::interpreter::fn;
 
 #define frame staticExecutor.m_frame
 
+// NEW FEATURE (signature: annika marie schlögel)
+// BACKGROUND ASSET IMPORTER/LOADER
+void ogm::interpreter::fn::background_add(
+    VO out,
+    V fname,
+    V removeback,
+    V smooth)
+{
+    if (removeback.cond() || smooth.cond())
+    {
+        std::cout
+        << "\033[38;5;208m"
+        << "WARNING: background_add(removeback="
+        << removeback.cond()
+        << ", smooth="
+        << smooth.cond()
+        << ") currently ignores these parameters."
+        << "\033[0m\n";
+    }
+
+    asset_index_t index;
+
+    AssetBackground* bg = frame.m_assets.add_asset<AssetBackground>(
+        "<dynamic background>",
+        &index
+    );
+
+    bg->m_image = asset::Image(
+        frame.m_fs.resolve_file_path(
+            fname.castCoerce<std::string>()
+        )
+    );
+
+    bg->m_image.realize_data();
+
+    bg->m_dimensions = bg->m_image.m_dimensions;
+
+    TexturePage* tpage =
+    frame.m_display->m_textures.create_tpage_from_callback(
+        [bg]() -> asset::Image*
+        {
+            return &bg->m_image;
+        }
+    );
+
+    frame.m_display->m_textures.bind_asset_to_tpage_location(
+        { index },
+        tpage,
+        {
+            0.0, 0.0,
+            1.0, 1.0
+        }
+    );
+
+    out = static_cast<real_t>(index);
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::background_exists(VO out, V bg)
 {
     asset_index_t index = bg.castCoerce<asset_index_t>();
@@ -81,3 +139,17 @@ void ogm::interpreter::fn::background_duplicate(VO out, V vb)
         [bg]() { return &bg->m_image; }
     );
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// DESTRUCTS AN BG ASSET IN GPU
+void ogm::interpreter::fn::background_delete(
+    VO out,
+    V background
+)
+{
+    asset_index_t index = background.castCoerce<asset_index_t>();
+
+    frame.m_display->m_textures.free_texture({ index });
+    frame.m_assets.free_asset<AssetBackground>(index);
+}
+// NEW FEATURE END

@@ -383,6 +383,40 @@ uint32_t TextureStore::get_texture_pixel(TexturePage* tp, ogm::geometry::Vector<
     return u;
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// FREES GPU FROM SPECIFIED IMAGE TO PREVENT RUNTIME ASSET LEAKAGE
+void TextureStore::free_texture(ImageDescriptor id)
+{
+    auto desc_it = m_descriptor_map.find(id);
+    if (desc_it == m_descriptor_map.end())
+    {
+        return;
+    }
+
+    TextureView* view = desc_it->second;
+    TexturePage* page = view->m_tpage;
+
+    if (page == nullptr)
+    {
+        return;
+    }
+
+    // Remove descriptor first so nobody can retrieve it anymore.
+    m_descriptor_map.erase(desc_it);
+
+    // Free the TextureView.
+    delete view;
+
+    // Remove and destroy the TexturePage.
+    auto page_it = std::find(m_pages.begin(), m_pages.end(), page);
+    if (page_it != m_pages.end())
+    {
+        delete *page_it;
+        m_pages.erase(page_it);
+    }
+}
+// NEW FEATURE END
+
 }}
 
 #else

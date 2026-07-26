@@ -66,6 +66,13 @@ void ogm::interpreter::fn::window_get_fullscreen(VO out)
     out = false;
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::window_has_focus(VO out)
+{
+    out = frame.m_display->window_has_focus();
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::display_reset(VO out, V aa, V vsync)
 {
     frame.m_display->set_vsync(vsync.cond());
@@ -92,3 +99,29 @@ void ogm::interpreter::fn::window_mouse_get_y(VO out)
 {
     out = static_cast<real_t>(frame.m_display->get_mouse_coord().y);
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::display_set_gui_maximise(VO out)
+{
+    // GUI coordinates currently always match window coordinates.
+}
+
+void ogm::interpreter::fn::display_set_gui_size(
+    VO out,
+    V w,
+    V h
+)
+{
+    // GUI scaling not implemented yet.
+}
+
+void ogm::interpreter::fn::display_get_gui_width(VO out)
+{
+    out = frame.m_display->get_window_dimensions().x;
+}
+
+void ogm::interpreter::fn::display_get_gui_height(VO out)
+{
+    out = frame.m_display->get_window_dimensions().y;
+}
+// NEW FEATURE END

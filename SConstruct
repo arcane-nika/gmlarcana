@@ -1,6 +1,6 @@
 # SCons build script. See https://scons.org/doc/production/HTML/scons-user/index.html
 # 1. Install scons: https://scons.org/pages/download.html
-# 2. To build opengml, simply type `scons` (unquoted) (in the terminal from the repo root directory).
+# 2. To build gmlarcana, simply type `scons` (unquoted) (in the terminal from the repo root directory).
 
 import os
 import platform
@@ -14,10 +14,10 @@ def d(dict, key, defvalue=None):
   return dict[key] if key in dict and dict[key] != None else defvalue
 
 # project info
-project_name = "OpenGML"
-project_abbreviation = "ogm"
+project_name = "GMLarcana"
+project_abbreviation = "gmla"
 version_major = "0"
-version_minor = "8"
+version_minor = "9"
 version_patch = "0"
 version_name = "alpha"
 project_description = "Interpreter for GML 1.4"
@@ -221,10 +221,10 @@ if opts.linktest and (opts.deb or opts.appimage or opts.install):
   error("linktest is mutually exclusive with other packaging options.")
   Exit(1)
 
-# set full project name (OpenGML a.b.c (...))
+# set full project name (GMLarcana a.b.c (...))
 project_full_name = None
 if not opts.linktest:
-  project_full_name = f"OpenGML {version_major}.{version_minor}.{version_patch}"
+  project_full_name = f"GMLarcana {version_major}.{version_minor}.{version_patch}"
   project_appends = (
     ([version_name] if version_name else [])
     + (["debug"] if not opts.release else [])
@@ -576,9 +576,17 @@ def find_dependency(lib, header, language="c", required=False, message=None, def
     else:
       lib = "\" or \"".join(lib)
   else:
+  # SOME DEBUG CODE HERE (signature: annika marie schlögel, changes: 3)
     found_lib = conf.CheckLib(lib) if lib else True
+
   _conf = conf
-  found_header = (_conf.CheckCHeader(header) if language == "c" else _conf.CheckCXXHeader(header)) if header else True
+  found_header = (
+    _conf.CheckCHeader(header)
+    if language == "c"
+    else _conf.CheckCXXHeader(header)
+  ) if header else True
+  # SOME DEBUG CODE ENDS HERE
+
   if not found_lib or not found_header:
     s = ""
     missing = ""
@@ -618,6 +626,24 @@ def find_dependency(lib, header, language="c", required=False, message=None, def
     
 # Open Asset Importer Library (assimp)
 find_dependency("assimp", "assimp/Importer.hpp", "cpp", False, "Cannot import models.", "ASSIMP")
+
+# DEBUG CODE (signature: annika marie schlögel, changes: 3)
+# Fedora / modern Python support
+import subprocess
+
+try:
+    includes = subprocess.check_output(
+        ["python3-config", "--includes"],
+        text=True
+    ).strip().split()
+
+    for flag in includes:
+        if flag.startswith("-I"):
+            env.Append(CPPPATH=[flag[2:]])
+            conf.env.Append(CPPPATH=[flag[2:]])
+except Exception as e:
+    print("python3-config failed:", e)
+# DEBUG CODE END
 
 if opts.zugbruecke:
   find_dependency(["python"] + ["python3." + str(i) for i in range(6, 20)], "Python.h", "c", False, "Cannot run Zugbruecke (load windows dlls from linux).", "PYTHON")
@@ -714,7 +740,8 @@ def decide_if_changed(dependency, target, prev_ni, repo_node=None):
         return True
     return False
 
-env.Decider(decide_if_changed)
+# VERSION FIX THIS IS WILD CODE (signature: annika marie schlögel)
+# env.Decider(decide_if_changed)
 
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -736,53 +763,53 @@ def outname(name):
 if opts.linktest:
   # link test (just for checking that all the libraries and includes are found)
   linktest = env.Program(
-    outname("ogm-linktest"),
+    outname("gmla-linktest"),
     os.path.join(build_dir, "test", "link_test.cpp")
   )
   env.Default(linktest)
 
 if architecture == "i386":
   bittest = env.Program(
-    outname("ogm-bittest"),
+    outname("gmla-bittest"),
     os.path.join("etc", "meta", "check-32-bits.cpp")
   )
   env.Default(bittest)
 
 # ogm-common
 ogm_common = env.StaticLibrary(
-  outname("ogm-common"),
+  outname("gmla-common"),
   sources("src", "common") +
   sources("external", "fmt")
 )
 
 # ogm-sys
 ogm_sys = env.StaticLibrary(
-  outname("ogm-sys"),
+  outname("gmla-sys"),
   sources("src", "sys"),
 )
 
 # ogm-ast
 ogm_ast = env.StaticLibrary(
-  outname("ogm-ast"),
+  outname("gmla-ast"),
   sources("src", "ast") +
   sources("external", "utf8"),
 )
 
 # ogm-bytecode
 ogm_bytecode = env.StaticLibrary(
-  outname("ogm-bytecode"),
+  outname("gmla-bytecode"),
   sources("src", "bytecode"),
 )
 
 # ogm-beautify
 ogm_beautify = env.StaticLibrary(
-  outname("ogm-beautify"),
+  outname("gmla-beautify"),
   sources("src", "beautify")
 )
 
 # ogm-asset
 ogm_asset = env.StaticLibrary(
-  outname("ogm-asset"),
+  outname("gmla-asset"),
   sources("src", "asset") +
   sources("src", "resource") +
   sources("external", "stb") +
@@ -791,7 +818,7 @@ ogm_asset = env.StaticLibrary(
 
 # ogm-project
 ogm_project = env.StaticLibrary(
-  outname("ogm-project"),
+  outname("gmla-project"),
   sources("src", "project") +
   sources("simpleini", "ConvertUTF.c") +
   sources("external", "pugixml"),
@@ -799,7 +826,7 @@ ogm_project = env.StaticLibrary(
 
 # ogm-interpreter
 ogm_interpreter = env.StaticLibrary(
-  outname("ogm-interpreter"),
+  outname("gmla-interpreter"),
   sources("src", "interpreter") +
   sources("external", "md5") +
   sources("external", "base64") +
@@ -835,13 +862,13 @@ if opts.sound and not opts.headless:
   ogm_execution_libs += soloud
   
 ogm = env.Program(
-  outname("ogm"),
+  outname("gmla"),
   sources("src", "main"),
   LIBS=ogm_execution_libs + env["LIBS"]
 )
 
 ogm_test = env.Program(
-  outname("ogm-test"),
+  outname("gmla-test"),
   # don't put link_test in test build, as it is its own thing. (TODO: should it have its own build directory..?), 
   list(filter(lambda source : "link_test.cpp" not in str(source), sources("test"))),
   LIBS=ogm_execution_libs + env["LIBS"]
@@ -901,13 +928,13 @@ if opts.install:
 
 # required for deb and appimage:
 desktop_entry = """[Desktop Entry]
-Name=OpenGML
+Name=GMLarcana
 Comment=Interpreter for GML1.4
 Exec=%%exec%%
 Icon=%%icon%%
 Categories=Development
 Type=Application
-Keywords=ogm;maker;gml;game
+Keywords=gmla;maker;gml;game
 """
 
 # -- deb package (optional) -------------------------------------------------------------------------------------------
@@ -941,7 +968,7 @@ if opts.deb:
       f"Package: {project_abbreviation}",
       f"Version: {version_major}.{version_minor}",
       f"Architecture: {deb_architecture}",
-      f"Maintainer: Maiple <mairple@gmail.com>",
+      f"Maintainer: arcane-nika <annika.schloegel@outlook.com>",
       f"Description: {project_description}",
       f"Depends: {', '.join(deb_depends)}" if len(deb_depends) > 0 else ""
     ]) + "\n"
@@ -978,7 +1005,7 @@ if opts.appimage:
 
   # create desktop file
   with open(os.path.join(appdir, "ogm.desktop"), "w") as f:
-    f.write(desktop_entry.replace("%%exec%%", "ogm").replace("%%icon%%", "ogm"))
+    f.write(desktop_entry.replace("%%exec%%", "gmla").replace("%%icon%%", "gmla"))
 
   # download linuxdeploy (a tool which creates appimages)
   wget_linuxdeploy = env.Command(

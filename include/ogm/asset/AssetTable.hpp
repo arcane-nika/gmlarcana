@@ -94,6 +94,31 @@ public:
         m_index_asset.clear();
     }
 
+    // NEW FEATURE (signature: annika marie schlögel)
+    // deletion api
+    template<typename AssetType = Asset>
+    void free_asset(asset_index_t id)
+    {
+        if (id >= m_index_asset.size())
+        {
+            return;
+        }
+
+        AssetType* asset = dynamic_cast<AssetType*>(m_index_asset[id]);
+
+        if (!asset)
+        {
+            return;
+        }
+
+        m_name_index.erase(m_index_name[id]);
+        m_index_name[id].clear();
+
+        delete asset;
+        m_index_asset[id] = nullptr;
+    }
+    // NEW FEATURE END
+
 private:
     std::map<std::string, asset_index_t> m_name_index;
     std::vector<std::string> m_index_name;

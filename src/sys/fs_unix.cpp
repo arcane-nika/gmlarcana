@@ -106,6 +106,44 @@ std::string get_binary_directory()
     }
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+// returns the local saving folder of programs (home/.local/share equivalent to appdata/local in winfs)
+std::string get_local_appdata()
+{
+    if (const char* xdg = getenv("XDG_DATA_HOME"))
+    {
+        return xdg;
+    }
+
+    if (const char* home = getenv("HOME"))
+    {
+        return std::string(home) + "/.local/share";
+    }
+
+    return "";
+}
+// NEW FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+std::vector<std::string> __glob(const std::string& search_path)
+{
+    glob_t glob_result;
+
+    std::vector<std::string> out;
+
+    if (glob(search_path.c_str(), GLOB_TILDE, nullptr, &glob_result) == 0)
+    {
+        for (size_t i = 0; i < glob_result.gl_pathc; ++i)
+        {
+            out.emplace_back(glob_result.gl_pathv[i]);
+        }
+    }
+
+    globfree(&glob_result);
+
+    return out;
+}
+
 }
 
 #endif

@@ -117,11 +117,19 @@ void ogm::interpreter::fn::sprite_set_speed(VO out, V vs, V vspd, V vspdtype)
     s->m_speed_real_time = (vspdtype.castCoerce<real_t>() == constant::spritespeed_framespersecond);
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel), removed exception put debug print
 void ogm::interpreter::fn::sprite_create_from_surface(VO out, V surface, V vx, V vy, V vw, V vh, V removebackground, V smooth, V xo, V yo)
 {
     if (removebackground.cond() || smooth.cond())
     {
-      throw MiscError("smooth or removebg not supported yet.");
+        std::cout
+        << "\033[38;5;208m"
+        << "WARNING: sprite_create_from_surface(removeback="
+        << removebackground.cond()
+        << ", smooth="
+        << smooth.cond()
+        << ") currently ignores these parameters."
+        << "\033[0m\n";
     }
 
     asset_index_t asset_index;
@@ -155,7 +163,14 @@ void ogm::interpreter::fn::sprite_add(VO out, V fname, V vimgnum, V removeback, 
 {
     if (removeback.cond() || smooth.cond())
     {
-        throw MiscError("smooth or removebg not supported yet.");
+        std::cout
+        << "\033[38;5;208m"
+        << "WARNING: sprite_add(removeback="
+        << removeback.cond()
+        << ", smooth="
+        << smooth.cond()
+        << ") currently ignores these parameters."
+        << "\033[0m\n";
     }
 
     size_t imgnum = std::max(1, vimgnum.castCoerce<int32_t>());
@@ -212,7 +227,14 @@ void ogm::interpreter::fn::sprite_add_from_surface(VO out, V index, V surface, V
 {
     if (removebackground.cond() || smooth.cond())
     {
-      throw MiscError("smooth or removebg not supported yet.");
+        std::cout
+        << "\033[38;5;208m"
+        << "WARNING: sprite_add_from_surface(removeback="
+        << removebackground.cond()
+        << ", smooth="
+        << smooth.cond()
+        << ") currently ignores these parameters."
+        << "\033[0m\n";
     }
 
     asset_index_t asset_index = index.castCoerce<asset_index_t>();
@@ -235,3 +257,4 @@ void ogm::interpreter::fn::sprite_add_from_surface(VO out, V index, V surface, V
         geometry::AABB<coord_t>{ src_coord, dim + src_coord }
     );
 }
+// MODIFIED FEATURE END

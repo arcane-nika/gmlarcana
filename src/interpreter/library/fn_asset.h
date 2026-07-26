@@ -61,11 +61,13 @@ CONST(spritespeed_framespergameframe, 1)
 FNDEF4(font_add_sprite, sprite, first, prop, sep)
 FNDEF4(font_add_sprite_ext, sprite, str, prop, sep)
 
+FNDEF3(background_add, fname, removeback, smooth) // NEW FEATURE (signature: annika marie schlögel)
 FNDEF1(background_exists, b)
 FNDEF1(background_get_width, b)
 FNDEF1(background_get_height, b)
 FNDEF1(background_get_name, b)
 FNDEF1(background_duplicate, b)
+FNDEF1(background_delete, b) // NEW FEATURE (signature: annika marie schlögel)
 
 // ogm-only functions:
 FNDEF1(room_get_view_enabled, r)

@@ -76,7 +76,7 @@ std::string expand_command(std::string command)
 void show_spiel()
 {
     std::cout <<
-    "OpenGML Debugger\n\n"
+    "GMLarcana Debugger\n\n"
     "Type \"help\" for help.\n";
 }
 

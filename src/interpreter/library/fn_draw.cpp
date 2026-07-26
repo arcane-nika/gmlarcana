@@ -9,6 +9,8 @@
 #include "ogm/interpreter/Executor.hpp"
 #include "ogm/interpreter/execute.hpp"
 #include "ogm/interpreter/display/Display.hpp"
+#include "ogm/asset/Image.hpp"
+#include "ogm/interpreter/display/TextureStore.hpp"
 
 #include <string>
 #include "ogm/common/error.hpp"
@@ -560,11 +562,33 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
     AssetFont* af = frame.get_asset_from_variable<AssetFont>(font, af_index);
     TextureView* tv = nullptr;
 
+    // MODIFIED FEATURE, IMPLEMENTATION (signature: annika marie schlögel)
     // get image for font, if font is a raster font.
     if (!af->m_ttf)
     {
-        tv = display->m_textures.get_texture({ af_index });
+        try
+        {
+            tv = display->m_textures.get_texture({ af_index });
+        }
+        catch (const MiscError&)
+        {
+            asset::Image image(
+                frame.m_fs.resolve_file_path(af->m_path)
+            );
+
+            image.realize_data();
+
+            TexturePage* page =
+            display->m_textures.create_tpage_from_image(image);
+
+            tv = display->m_textures.bind_asset_to_tpage_location(
+                { af_index },
+                page,
+                { 0.0, 0.0, 1.0, 1.0 }
+            );
+        }
     }
+    // MODIFIED FEATURE END
 
     display->set_font(af, tv);
 }
@@ -588,6 +612,44 @@ void ogm::interpreter::fn::draw_text_ext(VO out, V x, V y, V vtext, V sep, V w)
     text = replace_all(text, "#", "\n");
     display->draw_text(x.castCoerce<coord_t>(), y.castCoerce<coord_t>(), text.c_str(), g_halign / 2.0, g_valign / 2.0, true, w.castCoerce<coord_t>(), true, sep.castCoerce<coord_t>());
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// font drawing
+void ogm::interpreter::fn::draw_text_transformed(
+    VO out,
+    V x,
+    V y,
+    V vtext,
+    V xscale,
+    V yscale,
+    V angle
+)
+{
+    display->set_matrix_pre_model(
+        x.castCoerce<coord_t>(),
+                                  y.castCoerce<coord_t>(),
+                                  xscale.castCoerce<real_t>(),
+                                  yscale.castCoerce<real_t>(),
+                                  angle.castCoerce<real_t>() * TAU / 360
+    );
+
+    Variable _vtext;
+    string(_vtext, vtext);
+
+    std::string text = _vtext.castCoerce<std::string>().c_str();
+    text = replace_all(text, "#", "\n");
+
+    display->draw_text(
+        0,
+        0,
+        text.c_str(),
+                       g_halign / 2.0,
+                       g_valign / 2.0
+    );
+
+    display->set_matrix_pre_model();
+}
+// NEW FEATURE END
 
 void ogm::interpreter::fn::draw_text_colour(VO out, V x, V y, V vtext, V c1, V c2, V c3, V c4, V alpha)
 {

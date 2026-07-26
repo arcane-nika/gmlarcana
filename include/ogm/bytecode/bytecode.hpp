@@ -737,6 +737,9 @@ struct ProjectAccumulator
     // project root
     std::string m_project_base_directory = "";
 
+    // NEW FEATURE (signature: annika marie schlögel) project name
+    std::string m_project_name = "";
+
     // v2 hash id-to-resource-name mapping
     std::map<std::string, std::string> m_id_map;
 

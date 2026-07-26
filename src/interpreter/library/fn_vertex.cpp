@@ -182,12 +182,20 @@ void ogm::interpreter::fn::vertex_format_add_custom(VO out, V type, V destinatio
     );
 }
 
+// MODIFIED FEATURE, PROBABLE BUGFIX (signature: annika marie schlögel)
 void ogm::interpreter::fn::vertex_format_end(VO out)
 {
     display->vertex_format_finish(g_active_vao - 1);
-    out = static_cast<real_t>(g_active_vao);
+
+    // LEGACY CODE
+    //out = static_cast<real_t>(g_active_vao);
+
+    // NEW CODE
+    out = static_cast<real_t>(g_active_vao - 1);
+
     g_active_vao = 0;
 }
+// MODIFIED FEATURE END
 
 void ogm::interpreter::fn::vertex_format_delete(VO out, V id)
 {

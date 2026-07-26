@@ -122,9 +122,16 @@ public:
         return this->dot(other) / other.length();
     }
 
-    Vector<coord_t> projection(const Vector<coord_t>& other) const
+    // APPARENT BUG (signature: annika marie schlögel)
+    /*Vector<coord_t> projection(const Vector<coord_t>& other) const
     {
         return other.normalize_copy() * projection_length(other);
+    }*/
+
+    // BUGFIX
+    Vector<coord_t> projection(const Vector<coord_t>& other) const
+    {
+        return other.normalize_safe_copy() * projection_length(other);
     }
 
     Vector<coord_t> projection_perp(const Vector<coord_t>& other) const
@@ -134,17 +141,41 @@ public:
 
     /**returns a vector with the same angle but magnitude 1
      * (or zero, if the magnitude was zero to begin with.*/
-    Vector<coord_t> normalize_safe_copy() const
+
+    // APPARENT BUG (signature: annika marie schlögel)
+    /*Vector<coord_t> normalize_safe_copy() const
     {
         return *this / this->length();
+    }*/
+
+    // BUGFIX
+    Vector<coord_t> normalize_safe_copy() const
+    {
+        auto len = length();
+        if (len == 0)
+            return *this;
+
+        return *this / len;
     }
 
     /**Sets the magnitude to unit value preserving the angle.
      * Has no effect on the zero-vector.
      * deprecated.*/
-    Vector<coord_t>& normalize_apply()
+
+    // APPARENT BUG (signature: annika marie schlögel)
+    /*Vector<coord_t>& normalize_apply()
     {
         return *this /= this->length();
+    }*/
+
+    // BUGFIX
+    Vector<coord_t>& normalize_apply()
+    {
+        auto len = length();
+        if (len != 0)
+            *this /= len;
+
+        return *this;
     }
 
     /**multiplies the magnitude by the provided factor value preserving the

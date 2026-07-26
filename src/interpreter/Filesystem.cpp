@@ -7,6 +7,8 @@
 #endif
 
 #include <iostream>
+#include <filesystem>
+#include <optional>
 
 namespace ogm { namespace interpreter
 {
@@ -186,5 +188,86 @@ std::string Filesystem::resolve_file_path(const std::string& path, bool write)
         }
     }
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// FUNCTION DEFINITIONS
+void Filesystem::file_find_close()
+{
+    m_file_search.reset();
+}
+
+std::string Filesystem::file_find_next()
+{
+    if (!m_file_search)
+        return "";
+
+    ++m_file_search->index;
+
+    if (m_file_search->index >= m_file_search->matches.size())
+    {
+        m_file_search.reset();
+        return "";
+    }
+
+    return m_file_search->matches[m_file_search->index];
+}
+
+// TODO: VISIT LATER, NOT FULLY IMPLEMENTED
+std::string Filesystem::file_find_first(const std::string& pattern, int attributes)
+{
+    file_find_close();
+
+    m_file_search.emplace();
+    m_file_search->index = 0;
+
+    // PROBABLE BUG FIX (signature: annika marie schlögel)
+
+    // LEGACY CODE
+    //std::string resolved = resolve_file_path(pattern, false);
+
+    // NEW CODE (changing write mode to true, basically every imported api/resource would not want the project dir as which the false writing flag is basically redirecting to) NEVERMIND
+    std::string resolved = resolve_file_path(pattern, false);
+
+    // PROBABLE BUG FIX END
+
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cout << "pattern   = " << pattern << '\n';
+    std::cout << "resolved  = " << resolved << '\n';
+    std::cout << "working   = " << m_working_directory << '\n';
+    std::cout << "included  = " << m_included_directory << '\n';
+    // DEBUG PRINT END
+
+    std::filesystem::path search_path(resolved);
+
+    std::filesystem::path directory = search_path.parent_path();
+    std::string wildcard = search_path.filename().string();
+
+    for (const auto& entry : std::filesystem::directory_iterator(directory))
+    {
+        if (wildcard != "*")
+            continue;
+
+        bool accept = true;
+
+        if (attributes & 16)
+            accept &= entry.is_directory();
+
+        if (!accept)
+            continue;
+
+        m_file_search->matches.push_back(
+            entry.path().filename().string()
+        );
+    }
+
+    if (m_file_search->matches.empty())
+    {
+        m_file_search.reset();
+        return "";
+    }
+
+    return m_file_search->matches.front();
+}
+// NEW FEATURE END
 
 }}

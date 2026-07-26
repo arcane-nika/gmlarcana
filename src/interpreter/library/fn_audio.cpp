@@ -358,6 +358,33 @@ double instance_get_volume(sound_id_t id)
 }
 using namespace ogm::interpreter::audio; 
 
+// NEW FEATURE (signature: annika marie schlögel)
+// audio importer/streamer
+void ogm::interpreter::fn::audio_create_stream(VO out, V vfilename)
+{
+    const std::string filename = vfilename.castCoerce<std::string>();
+
+    asset_index_t asset_index;
+
+    static uint64_t dynamic_stream_counter = 0;
+    std::string asset_name =
+    "__dynamic_stream_" + std::to_string(dynamic_stream_counter++);
+
+    AssetSound* sound = frame.m_assets.add_asset<AssetSound>(
+        asset_name.c_str(),
+        &asset_index
+    );
+
+    // Configure the runtime-created sound asset.
+    sound->m_path = filename;
+    sound->m_streamed = true;
+    sound->m_volume = 1.0;
+    sound->m_pan = 0.0;
+
+    out = static_cast<real_t>(asset_index);
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::ogm_audio_init(VO out)
 {
     #ifdef OGM_SOLOUD

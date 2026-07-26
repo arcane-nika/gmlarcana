@@ -126,6 +126,7 @@ void ResourceSound::precompile(bytecode::ProjectAccumulator& acc)
     m_asset->m_type = m_type;
     m_asset->m_bit_depth = m_bit_depth;
     m_asset->m_preload = m_preload;
+    m_asset->m_streamed = m_streamed; // NEW FEATURE (signature: annika marie schlögel)
     m_asset->m_uncompress_on_load = m_uncompress_on_load;
 }
 
