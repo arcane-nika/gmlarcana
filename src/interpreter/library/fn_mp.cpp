@@ -22,6 +22,21 @@ using namespace ogm::interpreter::fn;
 
 #define frame staticExecutor.m_frame
 
+// NEW FEATURE (signature: annika marie schlögel)
+// helpers for the collision functions
+enum class MoveMode
+{
+    Contact,
+    Outside
+};
+
+enum class CollisionMode
+{
+    Solid,
+    All
+};
+// NEW FEATURE END
+
 void ogm::interpreter::fn::move_towards_point(VO out, V vx, V vy, V vspeed)
 {
     real_t xdst = vx.castCoerce<real_t>();
@@ -71,12 +86,11 @@ void ogm::interpreter::fn::motion_add(VO out, V vdir, V vspeed)
 }
 
 // NEW FEATURE (signature: annika marie schlögel)
-void ogm::interpreter::fn::move_contact_solid(VO out, V vdir, V vmaxdist)
+// generalized helper function which is called by:
+// move_contact_solid, move_contact_all, move_outside_solid, move_outside_all
+static void move_until (MoveMode move_mode, CollisionMode collision_mode, real_t dir, int32_t maxdist)
 {
     frame.process_collision_updates();
-
-    real_t dir = vdir.castCoerce<real_t>();
-    int32_t maxdist = vmaxdist.castCoerce<int32_t>();
 
     if (maxdist <= 0)
     {
@@ -95,27 +109,97 @@ void ogm::interpreter::fn::move_contact_solid(VO out, V vdir, V vmaxdist)
     dx.cleanup();
     dy.cleanup();
 
+    bool moved = false;
+
     for (int32_t i = 0; i < maxdist; ++i)
     {
         real_t xnext = staticExecutor.m_self->m_data.m_position.x + stepx;
         real_t ynext = staticExecutor.m_self->m_data.m_position.y + stepy;
 
-        Variable free;
-        place_free(free, Variable(xnext), Variable(ynext));
+        Variable collision;
 
-        if (!free.cond())
+        if (collision_mode == CollisionMode::Solid)
         {
-            free.cleanup();
-            break;
+            place_free(collision, Variable(xnext), Variable(ynext));
+        }
+        else
+        {
+            place_empty(collision, Variable(xnext), Variable(ynext));
         }
 
-        free.cleanup();
+        bool free = collision.cond();
+        collision.cleanup();
 
-        staticExecutor.m_self->m_data.m_position.x = xnext;
-        staticExecutor.m_self->m_data.m_position.y = ynext;
+        if (move_mode == MoveMode::Contact)
+        {
+            if (!free)
+            {
+                break;
+            }
 
+            moved = true;
+
+            staticExecutor.m_self->m_data.m_position.x = xnext;
+            staticExecutor.m_self->m_data.m_position.y = ynext;
+        }
+        else
+        {
+            moved = true;
+
+            staticExecutor.m_self->m_data.m_position.x = xnext;
+            staticExecutor.m_self->m_data.m_position.y = ynext;
+
+            if (free)
+            {
+                break;
+            }
+        }
+    }
+
+    if (moved)
+    {
         frame.queue_update_collision(staticExecutor.m_self);
     }
+}
+
+void ogm::interpreter::fn::move_contact_solid(VO out, V vdir, V vmaxdist)
+{
+    move_until(
+        MoveMode::Contact,
+        CollisionMode::Solid,
+        vdir.castCoerce<real_t>(),
+        vmaxdist.castCoerce<int32_t>()
+    );
+}
+
+void ogm::interpreter::fn::move_contact_all(VO out, V vdir, V vmaxdist)
+{
+    move_until(
+        MoveMode::Contact,
+        CollisionMode::All,
+        vdir.castCoerce<real_t>(),
+        vmaxdist.castCoerce<int32_t>()
+    );
+}
+
+void ogm::interpreter::fn::move_outside_solid(VO out, V vdir, V vmaxdist)
+{
+    move_until(
+        MoveMode::Outside,
+        CollisionMode::Solid,
+        vdir.castCoerce<real_t>(),
+        vmaxdist.castCoerce<int32_t>()
+    );
+}
+
+void ogm::interpreter::fn::move_outside_all(VO out, V vdir, V vmaxdist)
+{
+    move_until(
+        MoveMode::Outside,
+        CollisionMode::All,
+        vdir.castCoerce<real_t>(),
+        vmaxdist.castCoerce<int32_t>()
+    );
 }
 // NEW FEATURE END
 
