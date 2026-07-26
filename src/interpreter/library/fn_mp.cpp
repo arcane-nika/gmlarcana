@@ -70,6 +70,55 @@ void ogm::interpreter::fn::motion_add(VO out, V vdir, V vspeed)
     staticExecutor.m_self->m_data.m_speed.y += spd * yp;
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::move_contact_solid(VO out, V vdir, V vmaxdist)
+{
+    frame.process_collision_updates();
+
+    real_t dir = vdir.castCoerce<real_t>();
+    int32_t maxdist = vmaxdist.castCoerce<int32_t>();
+
+    if (maxdist <= 0)
+    {
+        maxdist = 1000;
+    }
+
+    Variable dx;
+    Variable dy;
+
+    lengthdir_x(dx, Variable(1.0), Variable(dir));
+    lengthdir_y(dy, Variable(1.0), Variable(dir));
+
+    real_t stepx = dx.castCoerce<real_t>();
+    real_t stepy = dy.castCoerce<real_t>();
+
+    dx.cleanup();
+    dy.cleanup();
+
+    for (int32_t i = 0; i < maxdist; ++i)
+    {
+        real_t xnext = staticExecutor.m_self->m_data.m_position.x + stepx;
+        real_t ynext = staticExecutor.m_self->m_data.m_position.y + stepy;
+
+        Variable free;
+        place_free(free, Variable(xnext), Variable(ynext));
+
+        if (!free.cond())
+        {
+            free.cleanup();
+            break;
+        }
+
+        free.cleanup();
+
+        staticExecutor.m_self->m_data.m_position.x = xnext;
+        staticExecutor.m_self->m_data.m_position.y = ynext;
+
+        frame.queue_update_collision(staticExecutor.m_self);
+    }
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::mp_linear_step(VO out, V gx, V gy, V vstepsize, V vall)
 {
     bool all = vall.cond();

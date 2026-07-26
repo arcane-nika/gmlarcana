@@ -76,7 +76,7 @@ IGNORE_WARN(instance_furthest)
 IGNORE_WARN(move_bounce_all)
 IGNORE_WARN(move_bounce_solid)
 IGNORE_WARN(move_contact_all)
-IGNORE_WARN(move_contact_solid)
+// IGNORE_WARN(move_contact_solid) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(move_outside_all)
 IGNORE_WARN(move_outside_solid)
 IGNORE_WARN(move_random)
