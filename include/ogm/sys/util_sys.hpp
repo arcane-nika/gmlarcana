@@ -235,6 +235,13 @@ std::string create_temp_directory();
 std::string path_drive(const std::string& path);
 // NEW FEATURE END
 
+// NEW FEATURE (signature: annika marie schlögel)
+// simple file mutation functions
+bool delete_file(const std::string& path);
+bool copy_file(const std::string& source, const std::string& destination);
+bool rename_file(const std::string& source, const std::string& destination);
+// NEW FEATURE END
+
 // "base" should end with path separator.
 void list_paths(const std::string& base, std::vector<std::string>& out);
 void list_paths_recursive(const std::string& base, std::vector<std::string>& out);

@@ -397,4 +397,19 @@ void ogm::interpreter::fn::filename_drive(VO out, V fname)
 {
     out = path_drive(fname.castCoerce<std::string>());
 }
+
+void ogm::interpreter::fn::file_delete(VO out, V fname)
+{
+    out = delete_file(fname.castCoerce<std::string>());
+}
+
+void ogm::interpreter::fn::file_copy(VO out, V source, V destination)
+{
+    out = copy_file(source.castCoerce<std::string>(), destination.castCoerce<std::string>());
+}
+
+void ogm::interpreter::fn::file_rename(VO out, V source, V destination)
+{
+    out = rename_file(source.castCoerce<std::string>(), destination.castCoerce<std::string>());
+}
 // NEW FEATURE END

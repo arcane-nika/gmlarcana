@@ -24,6 +24,61 @@ bool remove_directory(const std::string& path)
     );
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+bool delete_file(const std::string& path)
+{
+    try
+    {
+        return std::filesystem::remove(
+            std::filesystem::path(path)
+        );
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool copy_file(
+    const std::string& source,
+    const std::string& destination
+)
+{
+    try
+    {
+        return std::filesystem::copy_file(
+            std::filesystem::path(source),
+            std::filesystem::path(destination),
+            std::filesystem::copy_options::overwrite_existing
+        );
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool rename_file(
+    const std::string& source,
+    const std::string& destination
+)
+{
+    try
+    {
+        std::filesystem::rename(
+            std::filesystem::path(source),
+            std::filesystem::path(destination)
+        );
+
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+// NEW FEATURE END
+
 std::string get_temp_root()
 {
     return std::filesystem::temp_directory_path().string();

@@ -17,6 +17,9 @@ FNDEF1(file_text_close, file)
 FNDEF2(file_find_first, pattern, attributes)
 FNDEF0(file_find_next)
 FNDEF0(file_find_close)
+FNDEF1(file_delete, fname)
+FNDEF2(file_copy, source, destination)
+FNDEF2(file_rename, source, destination)
 // NEW FEATURE END
 
 // NEW FEATURE (signature: annika marie schlögel)
