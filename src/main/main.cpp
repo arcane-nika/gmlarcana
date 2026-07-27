@@ -18,6 +18,7 @@
 #include "ogm/common/error.hpp"
 
 #include "unzip.hpp"
+#include "common/sdl.hpp"
 
 #ifdef IMGUI
 #include "ogm/gui/editor.hpp"
@@ -653,6 +654,20 @@ int main (int argc, char** argv)
     {
         enable_terminal_colours();
     }
+
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    printf("Testing SDL...\n");
+
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        printf("SDL FAILED: %s\n", SDL_GetError());
+    }
+    else
+    {
+        printf("SDL OK\n");
+        SDL_Quit();
+    }
+    // DEBUG BLOCK END
     
     try
     {
