@@ -2367,6 +2367,12 @@ void Display::enable_view_projection(bool a)
 
 void Display::update_camera_matrices()
 {
+    // DEBUG BLOCK (signature: annika marie schlögel)
+    printf("g_shader_program = %u\n", g_shader_program);
+    if (g_shader_program == 0)
+    return;
+    // DEBUG BLOCK END
+
     // calculate combined matrices
     g_matrices[MATRIX_MODEL_VIEW] = g_matrices[MATRIX_VIEW] * g_matrices[MATRIX_MODEL];
     g_matrices[MATRIX_MODEL_VIEW_PROJECTION] = g_matrices[MATRIX_PROJECTION] * g_matrices[MATRIX_MODEL_VIEW];
