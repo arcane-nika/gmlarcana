@@ -61,6 +61,12 @@ namespace
         #define glCheckErrorStr(str) {}
         #define glCheckError() {}
     #endif
+
+    #ifdef NDEBUG
+    #warning NDEBUG IS DEFINED
+    #else
+    #warning NDEBUG IS NOT DEFINED
+    #endif
 }
 
 namespace ogm { namespace interpreter {
@@ -891,6 +897,8 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
         GLenum result = glewInit();
 
         // DEBUG PRINT (signature: annika marie schlögel)
+        printf("KHR_debug = %d\n", GLEW_KHR_debug);
+        printf("GL_ARB_debug_output = %d\n", GLEW_ARB_debug_output);
         printf("glewInit returned %u\n", (unsigned) result);
         printf("glewGetErrorString = %s\n",
             glewGetErrorString(result));
@@ -2368,6 +2376,8 @@ void Display::enable_view_projection(bool a)
 void Display::update_camera_matrices()
 {
     // DEBUG BLOCK (signature: annika marie schlögel)
+    GLenum err = glGetError();
+    printf("ERR (enter update_camera_matrices) = 0x%x\n", err);
     printf("g_shader_program = %u\n", g_shader_program);
     if (g_shader_program == 0)
     return;
@@ -2434,6 +2444,8 @@ void Display::update_camera_matrices()
             glUniformMatrix4fv(matvloc + i, 1, GL_FALSE, glm::value_ptr(g_matrices[i]));
         }
     }
+    err = glGetError();
+    printf("ERR (leave update_camera_matrices) = 0x%x\n", err);
 }
 
 void Display::set_fog(bool enabled, real_t start, real_t end, uint32_t col)
