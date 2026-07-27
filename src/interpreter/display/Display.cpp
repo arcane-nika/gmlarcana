@@ -897,12 +897,33 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
         GLenum glerr = glGetError();
         printf("glGetError after glew = 0x%x\n", glerr);
         // DEBUG PRINT END
-
-        if (result != GLEW_OK)
+        
+        // LEGACY CODE
+        /*if (result != GLEW_OK)
         {
             std::cerr << "Error (glew): " << glewGetErrorString(result) << std::endl;
             std::cerr << "Could not initialize glew.\n";
             std::cerr << "Note: gl version: " << (gl_version ? gl_version : "unknown") << "; gl renderer: " << (gl_renderer ? gl_renderer : "unknown") << std::endl;
+            return false;
+        }*/
+
+        // NEW CODE
+        if (result == GLEW_ERROR_NO_GLX_DISPLAY)
+        {
+            std::cout << "Ignoring GLEW_ERROR_NO_GLX_DISPLAY (Wayland)." << std::endl;
+            result = GLEW_OK;
+        }
+
+        if (result != GLEW_OK)
+        {
+            std::cerr << "Error (glew): " << glewGetErrorString(result)
+                    << " (" << result << ")" << std::endl;
+            std::cerr << "Could not initialize glew.\n";
+            std::cerr << "Note: gl version: "
+                    << (gl_version ? gl_version : "unknown")
+                    << "; gl renderer: "
+                    << (gl_renderer ? gl_renderer : "unknown")
+                    << std::endl;
             return false;
         }
 
