@@ -758,6 +758,14 @@ namespace
 
 bool Display::start(uint32_t width, uint32_t height, const char* caption, bool vsync)
 {
+    // BUG FIX (signature: annika marie schlögel)
+    #ifndef _WIN32 // when not on windows try wayland backend
+        // Prefer the native Wayland backend when available.
+        // SDL will fall back automatically if Wayland is unavailable.
+        SDL_setenv("SDL_VIDEODRIVER", "wayland", 0);
+    #endif
+    // BUG FIX END
+
     if (g_active_display != nullptr)
     {
         throw MiscError("Multiple displays not supported");
@@ -765,47 +773,15 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
 
     if (!init_sdl)
     {
-        // DEBUG PRINT (signature: annika marie schlögel)
-        printf("SDL video driver env = %s\n", getenv("SDL_VIDEODRIVER"));
-        
-        // LEGACY CODE
-        /*if (
+        if (
             SDL_Init(
                 SDL_INIT_VIDEO | SDL_INIT_JOYSTICK
             ) != 0
         )
         {
-            // DEBUG PRINT (signature: annika marie schlögel)
-            printf("Current video driver = %s\n", SDL_GetCurrentVideoDriver());
-            // DEBUG PRINT END
-
             printf("Unable to initialize SDL: %s\n", SDL_GetError());
             return false;
-        }*/
-
-        // NEW CODE
-        printf("SDL version: %d.%d.%d\n",
-            SDL_MAJOR_VERSION,
-            SDL_MINOR_VERSION,
-            SDL_PATCHLEVEL);
-
-        printf("Available video drivers:\n");
-        for (int i = 0; i < SDL_GetNumVideoDrivers(); ++i)
-        {
-            printf("  %s\n", SDL_GetVideoDriver(i));
         }
-
-        int rc = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
-
-        printf("SDL_Init returned %d\n", rc);
-        printf("SDL_GetError: %s\n", SDL_GetError());
-
-        if (rc != 0)
-        {
-            return false;
-        }
-
-        // DEBUG PRINT END
 
         init_sdl = true;
 
@@ -868,13 +844,27 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
     {
         glewExperimental = GL_TRUE;
         GLenum result = glewInit();
+        // BUGFIX (signature: annika marie schlögel)
+        // glew in compat mode is janky on wayland and assumes x11, lets fix that
+        if (result == GLEW_ERROR_NO_GLX_DISPLAY)
+        {
+            // Wayland/EGL has no GLX display.
+            // GLEW reports this even though the OpenGL context is valid.
+            std::cout << "Ignoring GLEW_ERROR_NO_GLX_DISPLAY (Wayland)." << std::endl;
+            result = GLEW_OK;
+        }
         if (result != GLEW_OK)
         {
             std::cerr << "Error (glew): " << glewGetErrorString(result) << std::endl;
             std::cerr << "Could not initialize glew.\n";
-            std::cerr << "Note: gl version: " << (gl_version ? gl_version : "unknown") << "; gl renderer: " << (gl_renderer ? gl_renderer : "unknown") << std::endl;
+            std::cerr << "Note: gl version: "
+                    << (gl_version ? gl_version : "unknown")
+                    << "; gl renderer: "
+                    << (gl_renderer ? gl_renderer : "unknown")
+                    << std::endl;
             return false;
         }
+        // BUGFIX END
 
         init_glew = true;
 
@@ -2316,6 +2306,10 @@ void Display::enable_view_projection(bool a)
 
 void Display::update_camera_matrices()
 {
+    // BUGFIX: if nothing is loaded, return early
+    if (g_shader_program == 0) return;
+    // BUGFIX END
+
     // calculate combined matrices
     g_matrices[MATRIX_MODEL_VIEW] = g_matrices[MATRIX_VIEW] * g_matrices[MATRIX_MODEL];
     g_matrices[MATRIX_MODEL_VIEW_PROJECTION] = g_matrices[MATRIX_PROJECTION] * g_matrices[MATRIX_MODEL_VIEW];
