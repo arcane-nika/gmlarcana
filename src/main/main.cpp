@@ -660,6 +660,7 @@ int main (int argc, char** argv)
     printf("WAYLAND_DISPLAY=%s\n", getenv("WAYLAND_DISPLAY"));
     printf("XDG_SESSION_TYPE=%s\n", getenv("XDG_SESSION_TYPE"));
     printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
+    printf("XDG_RUNTIME_DIR=%s\n", getenv("XDG_RUNTIME_DIR"));
 
     printf("Available drivers:\n");
 
@@ -668,6 +669,8 @@ int main (int argc, char** argv)
     {
         printf("  %s\n", SDL_GetVideoDriver(i));
     }
+
+    SDL_setenv("SDL_VIDEODRIVER", "wayland", 1);
 
     int rc = SDL_Init(SDL_INIT_VIDEO);
 
