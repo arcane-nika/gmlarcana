@@ -74,7 +74,10 @@ public:
         other.m_data = nullptr;
     }
     
-    Image& operator=(const Image& other)
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+
+    // LEGACY CODE
+    /*Image& operator=(const Image& other)
     {
         m_path = other.m_path;
         m_dimensions = other.m_dimensions;
@@ -85,9 +88,33 @@ public:
         }
         
         return *this;
+    }*/
+
+    // NEW CODE, preventing mem leakage
+    Image& operator=(const Image& other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        free(m_data);
+        m_data = nullptr;
+
+        m_path = other.m_path;
+        m_dimensions = other.m_dimensions;
+
+        if (other.m_data)
+        {
+            m_data = static_cast<uint8_t*>(malloc(other.get_data_len()));
+            memcpy(m_data, other.m_data, other.get_data_len());
+        }
+
+        return *this;
     }
     
-    Image& operator=(Image&& other)
+    // LEGACY CODE
+    /*Image& operator=(Image&& other)
     {
         m_path = other.m_path;
         m_dimensions = other.m_dimensions;
@@ -95,7 +122,28 @@ public:
         other.m_data = nullptr;
         
         return *this;
+    }*/
+
+    // NEW CODE, preventing mem leakage
+    Image& operator=(Image&& other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        free(m_data);
+
+        m_path = std::move(other.m_path);
+        m_dimensions = other.m_dimensions;
+        m_data = other.m_data;
+
+        other.m_data = nullptr;
+
+        return *this;
     }
+
+    // MODIFIED FEATURE END
 
     Image(std::string&& path)
         : m_path(std::move(path))

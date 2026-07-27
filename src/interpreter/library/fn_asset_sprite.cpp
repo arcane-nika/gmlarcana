@@ -279,3 +279,272 @@ void ogm::interpreter::fn::sprite_set_offset(VO out, V vs, V vx, V vy)
     s->m_offset.y = vy.castCoerce<coord_t>();
 }
 // NEW FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+// helper for copying, used in sprite_duplicate and sprite_assign
+static void copy_sprite_asset(AssetSprite* dst, const AssetSprite* src)
+{
+    ogm_assert(dst);
+    ogm_assert(src);
+
+    dst->m_offset = src->m_offset;
+    dst->m_dimensions = src->m_dimensions;
+    dst->m_aabb = src->m_aabb;
+    dst->m_shape = src->m_shape;
+    dst->m_subimage_count = src->m_subimage_count;
+    dst->m_speed = src->m_speed;
+    dst->m_speed_real_time = src->m_speed_real_time;
+
+    dst->m_subimages = src->m_subimages;
+
+    // prevent mem leakage from the allocations before deletion by clear(), as there is no destructor
+    for (auto& raster : dst->m_raster)
+    {
+        delete[] raster.m_data;
+        raster.m_data = nullptr;
+    }
+
+    dst->m_raster.clear();
+    dst->m_raster.reserve(src->m_raster.size());
+
+    for (const auto& src_raster : src->m_raster)
+    {
+        dst->m_raster.emplace_back();
+
+        auto& dst_raster = dst->m_raster.back();
+
+        dst_raster.m_width = src_raster.m_width;
+        dst_raster.m_length = src_raster.m_length;
+
+        if (src_raster.m_data && src_raster.m_length)
+        {
+            dst_raster.m_data = new bool[src_raster.m_length];
+
+            std::copy(
+                src_raster.m_data,
+                src_raster.m_data + src_raster.m_length,
+                dst_raster.m_data
+            );
+        }
+        else
+        {
+            dst_raster.m_data = nullptr;
+        }
+    }
+}
+
+void ogm::interpreter::fn::sprite_duplicate(VO out, V vsprite)
+{
+    const asset_index_t src_index = vsprite.castCoerce<asset_index_t>();
+
+    AssetSprite* src =
+        frame.m_assets.get_asset<AssetSprite*>(src_index);
+
+    if (!src)
+    {
+        out = k_no_asset;
+        return;
+    }
+
+    asset_index_t dst_index;
+
+    AssetSprite* dst =
+        frame.m_assets.add_asset<AssetSprite>(
+            "<dynamic sprite>",
+            &dst_index
+        );
+
+    copy_sprite_asset(dst, src);
+
+    for (size_t i = 0; i < src->image_count(); ++i)
+    {
+        TextureView* tv =
+            frame.m_display->m_textures.get_texture(
+                { src_index, i }
+            );
+
+        frame.m_display->m_textures.bind_asset_copy_texture(
+            { dst_index, i },
+            tv,
+            {
+                0,
+                0,
+                static_cast<uint32_t>(src->m_dimensions.x),
+                static_cast<uint32_t>(src->m_dimensions.y)
+            }
+        );
+    }
+
+    out = static_cast<real_t>(dst_index);
+}
+
+void ogm::interpreter::fn::sprite_assign(VO out, V vdst, V vsrc)
+{
+    const asset_index_t dst_index =
+        vdst.castCoerce<asset_index_t>();
+
+    const asset_index_t src_index =
+        vsrc.castCoerce<asset_index_t>();
+
+    AssetSprite* dst =
+        frame.m_assets.get_asset<AssetSprite*>(dst_index);
+
+    AssetSprite* src =
+        frame.m_assets.get_asset<AssetSprite*>(src_index);
+
+    if (!dst || !src)
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < dst->image_count(); ++i)
+    {
+        frame.m_display->m_textures.free_texture(
+            { dst_index, i }
+        );
+    }
+
+    copy_sprite_asset(dst, src);
+
+    for (size_t i = 0; i < src->image_count(); ++i)
+    {
+        TextureView* tv =
+            frame.m_display->m_textures.get_texture(
+                { src_index, i }
+            );
+
+        frame.m_display->m_textures.bind_asset_copy_texture(
+            { dst_index, i },
+            tv,
+            {
+                0,
+                0,
+                static_cast<uint32_t>(src->m_dimensions.x),
+                static_cast<uint32_t>(src->m_dimensions.y)
+            }
+        );
+    }
+}
+
+void ogm::interpreter::fn::sprite_delete(VO out, V vsprite)
+{
+    const asset_index_t index =
+        vsprite.castCoerce<asset_index_t>();
+
+    AssetSprite* sprite =
+        frame.m_assets.get_asset<AssetSprite*>(index);
+
+    if (!sprite)
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < sprite->image_count(); ++i)
+    {
+        frame.m_display->m_textures.free_texture(
+            { index, i }
+        );
+    }
+
+    frame.m_assets.free_asset<AssetSprite>(index);
+}
+
+void ogm::interpreter::fn::sprite_replace(
+    VO out,
+    V sprite,
+    V filename,
+    V imagenumb,
+    V removeback,
+    V smooth,
+    V xorig,
+    V yorig
+)
+{
+    asset_index_t index = sprite.castCoerce<asset_index_t>();
+    AssetSprite* spr = frame.m_assets.get_asset<AssetSprite*>(index);
+
+    if (!spr)
+    {
+        return;
+    }
+
+    // Free old GPU textures.
+    for (size_t i = 0; i < spr->image_count(); ++i)
+    {
+        frame.m_display->m_textures.free_texture({ index, i });
+    }
+
+    // Free old collision rasters.
+    for (auto& raster : spr->m_raster)
+    {
+        delete[] raster.m_data;
+        raster.m_data = nullptr;
+    }
+
+    spr->m_raster.clear();
+    spr->m_subimages.clear();
+
+    // ----- from here on this is essentially sprite_add -----
+
+    if (smooth.cond())
+    {
+        std::cout
+        << "\033[38;5;208m"
+        << "WARNING: sprite_replace(smooth="
+        << smooth.cond()
+        << ") currently ignores this parameter."
+        << "\033[0m\n";
+    }
+
+    size_t imgnum = std::max(1, imagenumb.castCoerce<int32_t>());
+
+    spr->m_offset = {
+        xorig.castCoerce<coord_t>(),
+        yorig.castCoerce<coord_t>()
+    };
+
+    spr->m_shape = AssetSprite::rectangle;
+    spr->m_subimage_count = imgnum;
+
+    asset::Image& image = spr->m_subimages.emplace_back(
+        frame.m_fs.resolve_file_path(filename.castCoerce<std::string>())
+    );
+
+    image.realize_data();
+
+    if (removeback.cond())
+    {
+        image.apply_color_key_from_bottom_left();
+    }
+
+    TexturePage* tpage =
+        frame.m_display->m_textures.create_tpage_from_callback(
+            [spr]() -> asset::Image*
+            {
+                return &spr->m_subimages.front();
+            }
+        );
+
+    spr->m_dimensions = {
+        static_cast<int32_t>(image.m_dimensions.x / imgnum),
+        image.m_dimensions.y
+    };
+
+    for (size_t i = 0; i < imgnum; ++i)
+    {
+        int32_t start = i * spr->m_dimensions.x;
+        coord_t invxrange = 1.0 / static_cast<coord_t>(image.m_dimensions.x);
+
+        frame.m_display->m_textures.bind_asset_to_tpage_location(
+            { index, i },
+            tpage,
+            {
+                invxrange * start,
+                0,
+                invxrange * (start + spr->m_dimensions.x),
+                1
+            }
+        );
+    }
+}
+// NEW FEATURE END

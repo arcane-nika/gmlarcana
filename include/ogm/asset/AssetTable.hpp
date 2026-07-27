@@ -64,6 +64,22 @@ public:
         return nullptr;
     }
 
+    // NEW FEATURE (signature: annika marie schlögel)
+    template<typename AssetType = Asset>
+    asset_index_t get_asset_index(const AssetType* asset) const
+    {
+        for (asset_index_t i = 0; i < m_index_asset.size(); ++i)
+        {
+            if (m_index_asset[i] == asset)
+            {
+                return i;
+            }
+        }
+
+        return k_no_asset;
+    }
+    // NEW FEATURE END
+
     template<typename Asset>
     Asset* add_asset(const char* assetName, asset_index_t* outAssetIndex = nullptr)
     {

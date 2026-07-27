@@ -15,6 +15,7 @@ namespace asset
 {
 using namespace ogm::geometry;
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
 class AssetSprite : public Asset
 {
     // although in practice these are all constrained to integral values,
@@ -59,13 +60,20 @@ public:
         {
             if (raster.m_data)
             {
-                delete(raster.m_data);
+                // PROBABLE BUG FIX TO PREVENT MEM LEAKAGE
+
+                // LEGACY CODE
+                //delete(raster.m_data);
+
+                // NEW CODE
+                delete[] raster.m_data;
             }
         }
 
         m_raster.clear();
     }
 };
+// MODIFIED FEATURE END
 
 }
 }

@@ -102,13 +102,13 @@ IGNORE_WARN(timeline_size)
 IGNORE_WARN(timeline_speed)
 
 // sprite
-IGNORE_WARN(sprite_add)
-IGNORE_WARN(sprite_add_from_surface)
+// IGNORE_WARN(sprite_add) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(sprite_add_from_surface) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(sprite_assign)
 IGNORE_WARN(sprite_collision_mask)
-IGNORE_WARN(sprite_create_from_surface)
+// IGNORE_WARN(sprite_create_from_surface) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(sprite_delete)
-IGNORE_WARN(sprite_duplicate)
+// IGNORE_WARN(sprite_duplicate) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(sprite_flush)
 IGNORE_WARN(sprite_flush_multi)
 IGNORE_WARN(sprite_get_bbox_bottom)

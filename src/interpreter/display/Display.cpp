@@ -765,15 +765,48 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
 
     if (!init_sdl)
     {
-        if (
+        // DEBUG PRINT (signature: annika marie schlögel)
+        printf("SDL video driver env = %s\n", getenv("SDL_VIDEODRIVER"));
+        
+        // LEGACY CODE
+        /*if (
             SDL_Init(
                 SDL_INIT_VIDEO | SDL_INIT_JOYSTICK
             ) != 0
         )
         {
+            // DEBUG PRINT (signature: annika marie schlögel)
+            printf("Current video driver = %s\n", SDL_GetCurrentVideoDriver());
+            // DEBUG PRINT END
+
             printf("Unable to initialize SDL: %s\n", SDL_GetError());
             return false;
+        }*/
+
+        // NEW CODE
+        printf("SDL version: %d.%d.%d\n",
+            SDL_MAJOR_VERSION,
+            SDL_MINOR_VERSION,
+            SDL_PATCHLEVEL);
+
+        printf("Available video drivers:\n");
+        for (int i = 0; i < SDL_GetNumVideoDrivers(); ++i)
+        {
+            printf("  %s\n", SDL_GetVideoDriver(i));
         }
+
+        int rc = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+
+        printf("SDL_Init returned %d\n", rc);
+        printf("SDL_GetError: %s\n", SDL_GetError());
+
+        if (rc != 0)
+        {
+            return false;
+        }
+
+        // DEBUG PRINT END
+
         init_sdl = true;
 
         #ifdef GFX_TEXT_AVAILABLE

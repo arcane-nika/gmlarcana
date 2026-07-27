@@ -19,6 +19,8 @@
 
 #include "SpatialHash.hpp"
 
+#include <algorithm>
+
 namespace ogm
 {
 namespace collision
