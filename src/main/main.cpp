@@ -656,17 +656,27 @@ int main (int argc, char** argv)
     }
 
     // DEBUG BLOCK (signature: annika marie schlögel)
-    printf("Testing SDL...\n");
+    printf("DISPLAY=%s\n", getenv("DISPLAY"));
+    printf("WAYLAND_DISPLAY=%s\n", getenv("WAYLAND_DISPLAY"));
+    printf("XDG_SESSION_TYPE=%s\n", getenv("XDG_SESSION_TYPE"));
+    printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    printf("Available drivers:\n");
+
+    int n = SDL_GetNumVideoDrivers();
+    for (int i = 0; i < n; i++)
     {
-        printf("SDL FAILED: %s\n", SDL_GetError());
+        printf("  %s\n", SDL_GetVideoDriver(i));
     }
-    else
-    {
-        printf("SDL OK\n");
-        SDL_Quit();
-    }
+
+    int rc = SDL_Init(SDL_INIT_VIDEO);
+
+    printf("rc = %d\n", rc);
+    printf("error = %s\n", SDL_GetError());
+
+    printf("Current driver: %s\n",
+        SDL_GetCurrentVideoDriver() ?
+        SDL_GetCurrentVideoDriver() : "(null)");
     // DEBUG BLOCK END
     
     try
