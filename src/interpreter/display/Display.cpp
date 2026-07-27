@@ -818,19 +818,7 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
         #endif
     }
 
-    #ifdef EMSCRIPTEN
-    SDL_CreateWindowAndRenderer(width, height, 0, &g_window, &g_renderer);
-    #else
-    g_window = SDL_CreateWindow(
-        caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		width, height, SDL_WINDOW_OPENGL);
-    #endif
-
-    if (!g_window)
-    {
-        printf("Unable to create SDL window.\n");
-        return false;
-    }
+    // NEW LOCATION OF THE SDL_GL_SetAttributes
 
     #ifdef EMSCRIPTEN
     if (!g_renderer)
@@ -848,8 +836,41 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+    #ifdef EMSCRIPTEN
+    SDL_CreateWindowAndRenderer(width, height, 0, &g_window, &g_renderer);
+    #else
+    g_window = SDL_CreateWindow(
+        caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		width, height, SDL_WINDOW_OPENGL);
+    #endif
+
+    if (!g_window)
+    {
+        printf("Unable to create SDL window.\n");
+        return false;
+    }
+
+    // OLD LOCATION OF THE SDL_GL_SetAttributes
+
     g_context = SDL_GL_CreateContext(g_window);
     
+    // DEBUG PRINT (signature: annika marie schlögel)
+    printf("Window           = %p\n", g_window);
+    printf("Context          = %p\n", g_context);
+    printf("Current Context  = %p\n", SDL_GL_GetCurrentContext());
+    printf("Current Window   = %p\n", SDL_GL_GetCurrentWindow());
+
+    printf("GL_VERSION  = %s\n",
+        glGetString(GL_VERSION));
+
+    printf("GL_VENDOR   = %s\n",
+        glGetString(GL_VENDOR));
+
+    printf("GL_RENDERER = %s\n",
+        glGetString(GL_RENDERER));
+    // DEBUG PRINT END
+
     if (!g_context)
     {
         printf("Unable to create OpenGL context\n");
@@ -868,6 +889,15 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
     {
         glewExperimental = GL_TRUE;
         GLenum result = glewInit();
+
+        // DEBUG PRINT (signature: annika marie schlögel)
+        printf("glewInit returned %u\n", (unsigned) result);
+        printf("glewGetErrorString = %s\n",
+            glewGetErrorString(result));
+        GLenum glerr = glGetError();
+        printf("glGetError after glew = 0x%x\n", glerr);
+        // DEBUG PRINT END
+
         if (result != GLEW_OK)
         {
             std::cerr << "Error (glew): " << glewGetErrorString(result) << std::endl;
