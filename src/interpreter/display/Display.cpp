@@ -25,6 +25,22 @@ namespace ogm::interpreter
 using namespace ogm;
 using namespace ogm::interpreter::fn::constant;
 
+// DEBUG BLOCK (signature: annika marie schlögel)
+static GLDEBUGPROC gl_debug_callback = [](
+    GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    fprintf(stderr,
+        "\n=== OpenGL Debug ===\n%s\n\n",
+        message);
+};
+// DEBUG BLOCK END
+
 namespace
 {
     // from https://learnopengl.com/In-Practice/Debugging
@@ -921,6 +937,30 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
             std::cout << "Ignoring GLEW_ERROR_NO_GLX_DISPLAY (Wayland)." << std::endl;
             result = GLEW_OK;
         }
+
+        // DEBUG BLOCK (signature: annika marie schlögel)
+        if (GLEW_KHR_debug)
+        {
+            glEnable(GL_DEBUG_OUTPUT);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+            glDebugMessageCallback(gl_debug_callback, nullptr);
+
+            glDebugMessageControl(
+                GL_DONT_CARE,
+                GL_DONT_CARE,
+                GL_DONT_CARE,
+                0,
+                nullptr,
+                GL_TRUE);
+
+            printf("OpenGL debug callback registered.\n");
+        }
+        else
+        {
+            printf("KHR_debug not supported.\n");
+        }
+        // DEBUG BLOCK END
 
         if (result != GLEW_OK)
         {
@@ -2380,7 +2420,10 @@ void Display::update_camera_matrices()
     printf("ERR (enter update_camera_matrices) = 0x%x\n", err);
     printf("g_shader_program = %u\n", g_shader_program);
     if (g_shader_program == 0)
-    return;
+    {
+        printf("Skipping update_camera_matrices (no shader yet)\n");
+        return;
+    }
     // DEBUG BLOCK END
 
     // calculate combined matrices
