@@ -26,6 +26,51 @@ void ogm::interpreter::fn::room_goto(VO out, V rm)
     frame.m_data.m_room_goto_queued = room_index;
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::room_goto_next(VO out)
+{
+    const auto& assets = frame.m_assets.get_asset_vector_NOMUTEX();
+
+    for (asset_index_t i = frame.m_data.m_room_index + 1;
+         i < assets.size();
+         ++i)
+    {
+        if (dynamic_cast<const ogm::asset::AssetRoom*>(assets[i]))
+        {
+            Variable next_room;
+            next_room = static_cast<real_t>(i);
+            room_goto(out, next_room);
+            return;
+        }
+    }
+
+    // Already in the last room: do nothing.
+}
+
+void ogm::interpreter::fn::room_goto_previous(VO out)
+{
+    const auto& assets = frame.m_assets.get_asset_vector_NOMUTEX();
+
+    if (frame.m_data.m_room_index == 0)
+    {
+        return;
+    }
+
+    for (asset_index_t i = frame.m_data.m_room_index; i-- > 0; )
+    {
+        if (dynamic_cast<const ogm::asset::AssetRoom*>(assets[i]))
+        {
+            Variable previous_room;
+            previous_room = static_cast<real_t>(i);
+            room_goto(out, previous_room);
+            return;
+        }
+    }
+
+    // Already in the first room: do nothing.
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::getv::room_first(VO out)
 {
     asset_index_t asset_index = 0;

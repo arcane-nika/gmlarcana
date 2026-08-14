@@ -48,7 +48,10 @@ namespace ogm::interpreter::ffi
             return archmatch() && osmatch();
         }
         
-        bool compatible() const
+        // PROBABLE BUGFIX (signature: annika marie schlögel)
+
+        // LEGACY CODE
+        /*bool compatible() const
         {
             if (platmatch()) return true;
             
@@ -60,7 +63,36 @@ namespace ogm::interpreter::ffi
             #endif
             
             return false;
+        }*/
+
+        // NEW CODE
+        bool compatible() const
+        {
+            std::cout << "compatible() entered\n";
+
+            if (platmatch())
+            {
+                std::cout << "platmatch true\n";
+                return true;
+            }
+
+            #if defined(EMBED_ZUGBRUECKE) && defined(PYTHON)
+            std::cout << "Trying Zugbruecke...\n";
+
+            if (os == WINDOWS)
+            {
+                bool ok = zugbruecke_init();
+                std::cout << "zugbruecke_init returned " << ok << '\n';
+                if (ok)
+                    return true;
+            }
+            #else
+            std::cout << "EMBED_ZUGBRUECKE/PYTHON not defined\n";
+            #endif
+
+            return false;
         }
+        // PROBABLE BUGFIX END
     };
     
     SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path);

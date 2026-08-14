@@ -75,8 +75,8 @@ IGNORE_WARN(room_assign)
 IGNORE_WARN(room_get_camera)
 IGNORE_WARN(room_get_name)
 IGNORE_WARN(room_get_viewport)
-IGNORE_WARN(room_goto_next)
-IGNORE_WARN(room_goto_previous)
+//IGNORE_WARN(room_goto_next) // COMMENTED BECAUSE OF IMPLEMENTATION
+//IGNORE_WARN(room_goto_previous) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(room_next)
 IGNORE_WARN(room_persistent)
 IGNORE_WARN(room_previous)
