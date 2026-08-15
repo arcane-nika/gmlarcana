@@ -64,7 +64,7 @@ IGNORE_WARN(draw_path)
 IGNORE_WARN(draw_point)
 IGNORE_WARN(draw_point_colour)
 IGNORE_WARN(draw_point_color)
-IGNORE_WARN(draw_primitive_begin_texture)
+// IGNORE_WARN(draw_primitive_begin_texture) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(draw_rectangle_colour)
 IGNORE_WARN(draw_rectangle_color)
 IGNORE_WARN(draw_roundrect)
@@ -79,7 +79,7 @@ IGNORE_WARN(draw_skeleton)
 IGNORE_WARN(draw_skeleton_collision)
 IGNORE_WARN(draw_skeleton_instance)
 IGNORE_WARN(draw_skeleton_time)
-IGNORE_WARN(draw_text_ext_transformed)
+// IGNORE_WARN(draw_text_ext_transformed) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(draw_text_ext_transformed_colour)
 IGNORE_WARN(draw_text_ext_transformed_color)
 // IGNORE_WARN(draw_text_transformed) // COMMENTED BECAUSE OF IMPLEMENTATION
@@ -93,8 +93,8 @@ IGNORE_WARN(draw_triangle_colour)
 IGNORE_WARN(draw_triangle_color)
 IGNORE_WARN(draw_background_tiled)
 IGNORE_WARN(draw_background_tiled_ext)
-IGNORE_WARN(draw_sprite_tiled)
-IGNORE_WARN(draw_sprite_tiled_ext)
+// IGNORE_WARN(draw_sprite_tiled) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(draw_sprite_tiled_ext) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(draw_get_alpha_test)
 IGNORE_WARN(draw_get_alpha_test_ref_value)
 IGNORE_WARN(gpu_get_alphatestenable)

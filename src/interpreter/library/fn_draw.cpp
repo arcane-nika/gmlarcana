@@ -456,6 +456,95 @@ void ogm::interpreter::fn::draw_sprite_pos(VO out, V sprite, V image, V x1, V y1
     }
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::draw_sprite_tiled(
+    VO out,
+    V sprite,
+    V subimg,
+    V x,
+    V y
+)
+{
+    asset_index_t sprite_index;
+    AssetSprite* spr = frame.get_asset_from_variable<AssetSprite>(sprite, sprite_index);
+
+    TextureView* tv = display->m_textures.get_texture({
+        sprite_index,
+        subimg.castCoerce<int32_t>()
+    });
+
+    display->set_matrix_pre_model();
+
+    display->draw_image_tiled(
+        tv,
+        true,
+        true,
+        x.castCoerce<coord_t>(),
+        y.castCoerce<coord_t>(),
+        x.castCoerce<coord_t>() + spr->m_dimensions.x,
+        y.castCoerce<coord_t>() + spr->m_dimensions.y,
+        tv->m_uv.left(),
+        tv->m_uv.top(),
+        tv->m_uv.right(),
+        tv->m_uv.bottom()
+    );
+}
+
+void ogm::interpreter::fn::draw_sprite_tiled_ext(
+    VO out,
+    V sprite,
+    V subimg,
+    V x,
+    V y,
+    V xscale,
+    V yscale,
+    V colour,
+    V alpha
+)
+{
+    asset_index_t sprite_index;
+    AssetSprite* spr = frame.get_asset_from_variable<AssetSprite>(sprite, sprite_index);
+
+    TextureView* tv = display->m_textures.get_texture({
+        sprite_index,
+        subimg.castCoerce<int32_t>()
+    });
+
+    uint32_t previous_colours[4];
+    display->get_colours4(previous_colours);
+
+    uint32_t ualpha = static_cast<uint32_t>(alpha.castCoerce<real_t>() * 255.0);
+    uint32_t col = (colour.castCoerce<int32_t>() << 8) | ualpha;
+    uint32_t cols[4] = { col, col, col, col };
+    display->set_colours4(cols);
+
+    display->set_matrix_pre_model(
+        x.castCoerce<coord_t>(),
+        y.castCoerce<coord_t>(),
+        xscale.castCoerce<real_t>(),
+        yscale.castCoerce<real_t>(),
+        0.0
+    );
+
+    display->draw_image_tiled(
+        tv,
+        true,
+        true,
+        0,
+        0,
+        spr->m_dimensions.x,
+        spr->m_dimensions.y,
+        tv->m_uv.left(),
+        tv->m_uv.top(),
+        tv->m_uv.right(),
+        tv->m_uv.bottom()
+    );
+
+    display->set_matrix_pre_model();
+    display->set_colours4(previous_colours);
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::draw_self(VO out)
 {
     const Instance* self = staticExecutor.m_self;
@@ -645,6 +734,47 @@ void ogm::interpreter::fn::draw_text_transformed(
         text.c_str(),
                        g_halign / 2.0,
                        g_valign / 2.0
+    );
+
+    display->set_matrix_pre_model();
+}
+
+void ogm::interpreter::fn::draw_text_ext_transformed(
+    VO out,
+    V x,
+    V y,
+    V vtext,
+    V sep,
+    V w,
+    V xscale,
+    V yscale,
+    V angle
+)
+{
+    display->set_matrix_pre_model(
+        x.castCoerce<coord_t>(),
+        y.castCoerce<coord_t>(),
+        xscale.castCoerce<real_t>(),
+        yscale.castCoerce<real_t>(),
+        angle.castCoerce<real_t>() * TAU / 360
+    );
+
+    Variable _vtext;
+    string(_vtext, vtext);
+
+    std::string text = _vtext.castCoerce<std::string>().c_str();
+    text = replace_all(text, "#", "\n");
+
+    display->draw_text(
+        0,
+        0,
+        text.c_str(),
+        g_halign / 2.0,
+        g_valign / 2.0,
+        true,
+        w.castCoerce<coord_t>(),
+        true,
+        sep.castCoerce<coord_t>()
     );
 
     display->set_matrix_pre_model();

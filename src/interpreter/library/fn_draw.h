@@ -15,6 +15,7 @@ ALIAS(draw_circle_colour, draw_circle_color)
 
 // primitives
 FNDEF1(draw_primitive_begin, glenum)
+FNDEF2(draw_primitive_begin_texture, glenum, texture)
 FNDEF2(draw_vertex, x, y)
 FNDEF4(draw_vertex_texture, x, y, u, v)
 FNDEF4(draw_vertex_colour, x, y, col, alpha)
@@ -33,6 +34,11 @@ FNDEF16(draw_sprite_general, sprite, subimg, left, top, width, height, x, y, xsc
 FNDEF6(draw_sprite_stretched, sprite, subimg, x, y, w, h)
 FNDEF8(draw_sprite_stretched_ext, sprite, subimg, x, y, w, h, c, alpha)
 FNDEF11(draw_sprite_pos, sprite, subimg, x1, y1, x2, y2, x3, y3, x4, y4, alpha)
+
+// NEW FEATURE (signature: annika marie schlögel)
+FNDEF4(draw_sprite_tiled, sprite, subimg, x, y)
+FNDEF8(draw_sprite_tiled_ext, sprite, subimg, x, y, xscale, yscale, c, alpha)
+// NEW FEATURE END
 
 // backgrounds
 FNDEF3(draw_background, background, x, y)
@@ -62,6 +68,7 @@ FNDEF1(texture_set_interpolation, linear)
 FNDEF3(draw_text, x, y, text)
 FNDEF5(draw_text_ext, x, y, text, sep, w)
 FNDEF6(draw_text_transformed, x, y, text, xscale, yscale, angle) // NEW FEATURE (signature: annika marie schlögel)
+FNDEF8(draw_text_ext_transformed, x, y, text, sep, w, xscale, yscale, angle) // NEW FEATURE (signature: annika marie schlögel)
 FNDEF8(draw_text_colour, x, y, text, c1, c2, c3, c4, alpha)
 FNDEF10(draw_text_ext_colour, x, y, text, sep, w, c1, c2, c3, c4, alpha)
 ALIAS(draw_text_colour, draw_text_color)

@@ -51,11 +51,28 @@ namespace
     }
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
 void ogm::interpreter::fn::draw_primitive_begin(VO out, V glenum)
 {
     reset_vertex();
     g_glenum = glenum.castCoerce<int32_t>();
+    tex = nullptr; // thats new
 }
+// MODIFIED FEATURE END
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::draw_primitive_begin_texture(
+    VO out,
+    V glenum,
+    V texture
+)
+{
+    reset_vertex();
+    g_glenum = glenum.castCoerce<int32_t>();
+
+    tex = static_cast<TextureView*>(texture.castExact<void*>());
+}
+// MODIFIED FEATURE END
 
 void ogm::interpreter::fn::draw_vertex(VO out, V x, V y)
 {
@@ -76,7 +93,10 @@ void ogm::interpreter::fn::draw_vertex_colour(VO out, V x, V y, V col, V alpha)
 void ogm::interpreter::fn::draw_vertex_texture(VO out, V x, V y, V u, V v)
 {
     real_t _u = u.castCoerce<real_t>();
-    real_t _v = u.castCoerce<real_t>();
+    // BUG FIX (signature: annika marie schlögel)
+    // real_t _v = u.castCoerce<real_t>(); // LEGACY CODE
+    real_t _v = v.castCoerce<real_t>(); // NEW CODE
+    // BUG FIX END
 
     if (tex)
     {
