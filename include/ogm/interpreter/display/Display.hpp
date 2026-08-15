@@ -213,6 +213,7 @@ public:
 
     bool window_close_requested();
     bool window_has_focus(); // NEW FEATURE (signature: annika marie schlögel)
+    uintptr_t get_native_window_handle(); // NEW FEATURE (signature: annika marie schlögel)
 
     bool get_fullscreen(); // NEW FEATURE (signature: annika marie schlögel)
     void set_fullscreen(bool fullscreen); // NEW FEATURE (signature: annika marie schlögel)
@@ -242,6 +243,9 @@ public:
     ogm::geometry::Vector<real_t> get_window_position();
     void set_window_position(real_t x, real_t y);
     void set_window_size(real_t w, real_t h);
+
+    // sets the mouse position in window coordinates
+    void set_mouse_position(coord_t x, coord_t y);
 
     // retrieves mouse coord in window
     ogm::geometry::Vector<real_t> get_mouse_coord();

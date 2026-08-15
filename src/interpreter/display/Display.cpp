@@ -16,6 +16,7 @@ namespace ogm::interpreter
 }
 
 #include "common/sdl.hpp"
+#include <SDL2/SDL_syswm.h>
 
 #ifdef GFX_AVAILABLE
 #include <optional>
@@ -1280,6 +1281,35 @@ bool Display::window_has_focus()
         return true;
     #endif
 }
+
+uintptr_t Display::get_native_window_handle()
+{
+    if (!g_window)
+        return 0;
+
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+
+    if (!SDL_GetWindowWMInfo(g_window, &info))
+        return 0;
+
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+    if (info.subsystem == SDL_SYSWM_WINDOWS)
+        return reinterpret_cast<uintptr_t>(info.info.win.window);
+#endif
+
+#if defined(SDL_VIDEO_DRIVER_X11) && !defined(SDL2COMPAT_DISABLE_X11)
+    if (info.subsystem == SDL_SYSWM_X11)
+        return static_cast<uintptr_t>(info.info.x11.window);
+#endif
+
+#if defined(SDL_VIDEO_DRIVER_WAYLAND)
+    if (info.subsystem == SDL_SYSWM_WAYLAND)
+        return reinterpret_cast<uintptr_t>(info.info.wl.surface);
+#endif
+
+    return 0;
+}
 // NEW FEATURE END
 
 void Display::set_clear_colour(uint32_t z)
@@ -1346,6 +1376,22 @@ void Display::set_font(asset::AssetFont* af, TextureView* tv)
     m_font = af;
     m_font_texture = tv;
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+void Display::set_mouse_position(coord_t x, coord_t y)
+{
+    if (!g_window)
+    {
+        return;
+    }
+
+    SDL_WarpMouseInWindow(
+        g_window,
+        static_cast<int>(x),
+        static_cast<int>(y)
+    );
+}
+// NEW FEATURE END
 
 namespace
 {

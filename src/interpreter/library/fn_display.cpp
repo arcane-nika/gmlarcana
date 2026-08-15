@@ -98,6 +98,13 @@ void ogm::interpreter::fn::window_has_focus(VO out)
 }
 // NEW FEATURE END
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::window_handle(VO out)
+{
+    out = static_cast<real_t>(frame.m_display->get_native_window_handle());
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::display_reset(VO out, V aa, V vsync)
 {
     frame.m_display->set_vsync(vsync.cond());
@@ -178,6 +185,16 @@ void ogm::interpreter::fn::window_mouse_get_y(VO out)
 {
     out = static_cast<real_t>(frame.m_display->get_mouse_coord().y);
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::window_mouse_set(VO out, V x, V y)
+{
+    frame.m_display->set_mouse_position(
+        x.castCoerce<coord_t>(),
+        y.castCoerce<coord_t>()
+    );
+}
+// NEW FEATURE END
 
 // NEW FEATURE (signature: annika marie schlögel)
 void ogm::interpreter::fn::display_set_gui_maximise(VO out)
