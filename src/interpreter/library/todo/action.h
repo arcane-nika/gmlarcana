@@ -35,7 +35,7 @@ IGNORE_WARN(action_if_mouse)
 IGNORE_WARN(action_if_variable)
 IGNORE_WARN(action_if_next_room)
 IGNORE_WARN(action_path)
-IGNORE_WARN(action_set_alarm)
+// IGNORE_WARN(action_set_alarm) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(action_sprite_set)
 IGNORE_WARN(action_sound)
 IGNORE_WARN(action_end_sound)

@@ -84,3 +84,16 @@ void ogm::interpreter::fn::action_kill_object(VO out)
 {
     instance_destroy(out);
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::action_set_alarm(VO out, V vindex, V vsteps)
+{
+    const size_t index = vindex.castCoerce<size_t>();
+
+    if (index < std::size(staticExecutor.m_self->m_data.m_alarm))
+    {
+        staticExecutor.m_self->m_data.m_alarm[index]
+            = vsteps.castCoerce<int32_t>();
+    }
+}
+// NEW FEATURE END
