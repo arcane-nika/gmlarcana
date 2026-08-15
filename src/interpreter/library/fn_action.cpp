@@ -96,4 +96,9 @@ void ogm::interpreter::fn::action_set_alarm(VO out, V vindex, V vsteps)
             = vsteps.castCoerce<int32_t>();
     }
 }
+
+void ogm::interpreter::fn::game_restart(VO out)
+{
+    frame.m_data.m_prg_reset = true;
+}
 // NEW FEATURE END
