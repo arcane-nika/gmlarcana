@@ -10,6 +10,7 @@
 #include "ogm/interpreter/display/Display.hpp"
 
 #include <string>
+#include <vector>
 #include "ogm/common/error.hpp"
 
 #include <cctype>
@@ -61,3 +62,42 @@ void ogm::interpreter::fn::shader_set_uniform_f(VO out, uint8_t c, const Variabl
     }
     display->shader_set_uniform_f(uniform_id, c - 1, values);
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::shader_set_uniform_f_array(
+    VO out,
+    V uniform,
+    V array
+)
+{
+    if (!array.is_array())
+    {
+        throw MiscError(
+            "shader_set_uniform_f_array requires an array."
+        );
+    }
+
+    const int32_t uniform_id =
+        uniform.castCoerce<int32_t>();
+
+    const size_t count = array.array_height();
+
+    if (count == 0)
+    {
+        return;
+    }
+
+    std::vector<float> values(count);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        values[i] = array.array_at(i).castCoerce<real_t>();
+    }
+
+    display->shader_set_uniform_f(
+        uniform_id,
+        static_cast<int>(count),
+        values.data()
+    );
+}
+// NEW FEATURE END

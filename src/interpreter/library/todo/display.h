@@ -184,7 +184,7 @@ IGNORE_WARN(shader_enable_corner_id)
 IGNORE_WARN(shader_get_sampler_index)
 IGNORE_WARN(shader_is_compiled)
 IGNORE_WARN(shaders_are_supported)
-IGNORE_WARN(shader_set_uniform_f_array)
+// IGNORE_WARN(shader_set_uniform_f_array) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(shader_set_uniform_i)
 IGNORE_WARN(shader_set_uniform_i_array)
 IGNORE_WARN(shader_set_uniform_matrix)

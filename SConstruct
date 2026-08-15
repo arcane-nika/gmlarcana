@@ -18,7 +18,7 @@ project_name = "GMLarcana"
 project_abbreviation = "gmla"
 version_major = "0"
 version_minor = "9"
-version_patch = "18"
+version_patch = "19"
 version_name = "alpha"
 project_description = "Interpreter for GML 1.4"
 
