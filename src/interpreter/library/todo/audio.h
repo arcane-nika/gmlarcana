@@ -62,8 +62,8 @@ IGNORE_WARN(audio_group_stop_all)
 IGNORE_WARN(audio_group_unload)
 
 // stream
-IGNORE_WARN(audio_create_stream)
-IGNORE_WARN(audio_destroy_stream)
+// IGNORE_WARN(audio_create_stream) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(audio_destroy_stream) // COMMENTED BECAUSE OF IMPLEMENTATION
 
 // audio sync
 IGNORE_WARN(audio_create_sync_group)

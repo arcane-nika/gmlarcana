@@ -385,6 +385,23 @@ void ogm::interpreter::fn::audio_create_stream(VO out, V vfilename)
 }
 // NEW FEATURE END
 
+// NEW FEATURE (signature: annika marie schlögel)
+// destroy runtime-created audio stream
+void ogm::interpreter::fn::audio_destroy_stream(VO out, V audio)
+{
+    asset_index_t index = audio.castCoerce<asset_index_t>();
+
+    // Stop all instances using this stream.
+    audio_stop_sound(out, audio);
+
+    // Destroy cached SoLoud resource.
+    g_resources.erase(index);
+
+    // Delete the runtime AssetSound.
+    frame.m_assets.free_asset<AssetSound>(index);
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::ogm_audio_init(VO out)
 {
     #ifdef OGM_SOLOUD
