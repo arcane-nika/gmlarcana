@@ -547,4 +547,52 @@ void ogm::interpreter::fn::sprite_replace(
         );
     }
 }
+
+void ogm::interpreter::fn::sprite_merge(
+    VO out,
+    V vsprite1,
+    V vsprite2
+)
+{
+    const asset_index_t dst_index =
+        vsprite1.castCoerce<asset_index_t>();
+
+    const asset_index_t src_index =
+        vsprite2.castCoerce<asset_index_t>();
+
+    AssetSprite* dst =
+        frame.m_assets.get_asset<AssetSprite*>(dst_index);
+
+    AssetSprite* src =
+        frame.m_assets.get_asset<AssetSprite*>(src_index);
+
+    if (!dst || !src)
+    {
+        return;
+    }
+
+    const size_t original_count = dst->image_count();
+
+    for (size_t i = 0; i < src->image_count(); ++i)
+    {
+        TextureView* tv =
+            frame.m_display->m_textures.get_texture(
+                { src_index, i }
+            );
+
+        frame.m_display->m_textures.bind_asset_copy_texture(
+            { dst_index, original_count + i },
+            tv,
+            {
+                0,
+                0,
+                static_cast<uint32_t>(src->m_dimensions.x),
+                static_cast<uint32_t>(src->m_dimensions.y)
+            }
+        );
+    }
+
+    dst->m_subimage_count =
+        original_count + src->image_count();
+}
 // NEW FEATURE END

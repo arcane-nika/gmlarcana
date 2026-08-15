@@ -120,7 +120,7 @@ IGNORE_WARN(sprite_get_number)
 IGNORE_WARN(sprite_get_speed)
 IGNORE_WARN(sprite_get_speed_type)
 IGNORE_WARN(sprite_get_uvs)
-IGNORE_WARN(sprite_merge)
+// IGNORE_WARN(sprite_merge) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(sprite_prefetch)
 IGNORE_WARN(sprite_prefetch_multi)
 IGNORE_WARN(sprite_replace)
