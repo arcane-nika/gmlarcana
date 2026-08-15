@@ -18,7 +18,7 @@ project_name = "GMLarcana"
 project_abbreviation = "gmla"
 version_major = "0"
 version_minor = "9"
-version_patch = "13"
+version_patch = "14"
 version_name = "alpha"
 project_description = "Interpreter for GML 1.4"
 
@@ -380,7 +380,7 @@ with open(os.path.join(build_dir, "LICENSE"), "w", encoding="utf8") as f:
 # set include directories
 # note: 'src' is private to ogm; when using ogm as a library,
 #       'src' includes will not be accessible.
-env.Append(CPPPATH=["src", "include", "external/include", "external/soloud/include"])
+env.Append(CPPPATH=["src", "include", "external/include", "external/soloud/include", "external/stb"])
 
 # source files are all files ending in .c, .cpp, etc.
 source_files = globs(source_trees, ["*.c", "*.cpp", "*.cc"])

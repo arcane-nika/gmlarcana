@@ -175,8 +175,8 @@ IGNORE_WARN(surface_create_ext)
 IGNORE_WARN(surface_getpixel)
 IGNORE_WARN(surface_getpixel_ext)
 IGNORE_WARN(surface_reset_target)
-IGNORE_WARN(surface_save)
-IGNORE_WARN(surface_save_part)
+// IGNORE_WARN(surface_save) // COMMENTED BECAUSE OF IMPLEMENTATION
+// IGNORE_WARN(surface_save_part) // COMMENTED BECAUSE OF IMPLEMENTATION
 IGNORE_WARN(surface_set_target)
 IGNORE_WARN(surface_set_target_ext)
 IGNORE_WARN(shader_current)
