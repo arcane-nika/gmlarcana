@@ -211,7 +211,10 @@ namespace
         );
     }
 
-    template<StaticEvent event>
+    // TEMPORARY DEBUG CODE (signature: annika marie schlögel)
+
+    // LEGACY CODE
+    /*template<StaticEvent event>
     inline void _ogm_event_instance_static(Instance* instance)
     {
         if (instance->m_data.m_frame_active)
@@ -236,7 +239,66 @@ namespace
                 }
             }
         }
+    }*/
+
+    // NEW CODE
+    template<StaticEvent event>
+    inline void _ogm_event_instance_static(Instance* instance)
+    {
+        if (instance->m_data.m_frame_active)
+        {
+            bytecode_index_t bytecode_index =
+                frame.get_static_event_bytecode<event>(
+                    instance->m_data.m_object_index
+                );
+
+            std::fprintf(
+                stderr,
+                "[DRAW DEBUG] object=%d bytecode=%d visible=%d\n",
+                instance->m_data.m_object_index,
+                bytecode_index,
+                instance->m_data.m_visible
+            );
+
+            if (bytecode_index != k_no_bytecode)
+            {
+            execute_bytecode:
+                Bytecode b = frame.m_bytecode.get_bytecode(bytecode_index);
+
+                std::fprintf(
+                    stderr,
+                    "[DRAW DEBUG] EXECUTING object=%d bytecode=%d\n",
+                    instance->m_data.m_object_index,
+                    bytecode_index
+                );
+
+                frame.m_data.m_event_context.m_object =
+                    instance->m_data.m_object_index;
+
+                staticExecutor.pushSelfDouble(instance);
+                execute_bytecode(b);
+                staticExecutor.popSelfDouble();
+            }
+            else
+            {
+                bytecode_index =
+                    frame.m_config.m_default_events[static_cast<size_t>(event)];
+
+                std::fprintf(
+                    stderr,
+                    "[DRAW DEBUG] no object bytecode, default=%d\n",
+                    bytecode_index
+                );
+
+                if (bytecode_index != k_no_bytecode)
+                {
+                    goto execute_bytecode;
+                }
+            }
+        }
     }
+
+    // TEMPORARY DEBUG CODE END
 
     void draw_background(const BackgroundLayer& bl)
     {
