@@ -3103,7 +3103,9 @@ void Display::set_colour_mask(bool r, bool g, bool b, bool a)
     g_cm[3] = a;
 }
 
-void Display::set_camera(coord_t x1, coord_t y1, coord_t z1, coord_t x2, coord_t y2, coord_t z2, coord_t xup, coord_t yup, coord_t zup, real_t fov, real_t aspect, coord_t near, coord_t far)
+// BUG FIXES (signature: annika marie schlögel)
+// changed near, far to near_plane, far_plane for win32/MINGW compatibility
+void Display::set_camera(coord_t x1, coord_t y1, coord_t z1, coord_t x2, coord_t y2, coord_t z2, coord_t xup, coord_t yup, coord_t zup, real_t fov, real_t aspect, coord_t near_plane, coord_t far_plane)
 {
     // set the perspective matrix
     {
@@ -3112,8 +3114,8 @@ void Display::set_camera(coord_t x1, coord_t y1, coord_t z1, coord_t x2, coord_t
             fov,
             aspect,
             1,
-            near,
-            far
+            near_plane,
+            far_plane
         );
 
         if (g_flip_projection)
@@ -3895,7 +3897,9 @@ void Display::set_culling(bool)
 void Display::set_zwrite(bool)
 { }
 
-void Display::set_camera(coord_t x1, coord_t y1, coord_t z1, coord_t x2, coord_t y2, coord_t z2, coord_t xup, coord_t yup, coord_t zup, real_t fov, real_t aspect, coord_t near, coord_t far)
+// BUG FIXES (signature: annika marie schlögel)
+// changed near, far to near_plane, far_plane for win32/MINGW compatibility
+void Display::set_camera(coord_t x1, coord_t y1, coord_t z1, coord_t x2, coord_t y2, coord_t z2, coord_t xup, coord_t yup, coord_t zup, real_t fov, real_t aspect, coord_t near_plane, coord_t far_plane)
 { }
 
 void Display::set_camera_ortho(coord_t x, coord_t y, coord_t w, coord_t h, coord_t angle)

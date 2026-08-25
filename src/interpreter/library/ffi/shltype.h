@@ -8,36 +8,56 @@ namespace ogm::interpreter::ffi
 {
     struct SharedLibraryType
     {
-        enum {
+        // BUG FIX (signature: annika marie schlögel)
+
+        // LEGACY CODE
+        /*enum {
             ERROR,
             WINDOWS,
             UNIX,
             APPLE,
         } os = ERROR;
-        
+         
         enum {
             UNKNOWN,
             x86,
             x64
+        } arch = UNKNOWN;*/
+
+        // NEW CODE
+        enum {
+            OS_ERROR,
+            OS_WINDOWS,
+            OS_UNIX,
+            OS_APPLE,
+        } os = OS_ERROR;
+
+        enum {
+            UNKNOWN,
+            ARCH_x86,
+            ARCH_x64
         } arch = UNKNOWN;
+
+        // BUG FIX END
     
         bool archmatch() const
         {
-            return (arch == x86 && is_32_bit()) || (arch == x64 && is_64_bit());
+            // changed x86, x64 TO ARCH_x86, ARCH_x64 according to the above fix
+            return (arch == ARCH_x86 && is_32_bit()) || (arch == ARCH_x64 && is_64_bit());
         }
         
         bool osmatch() const
         {
             #if defined(__unix__)
-            return os == UNIX;
+            return os == OS_UNIX; // changed UNIX TO OS_UNIX according to the above fix
             #endif
             
             #if defined(_WIN32) || defined(WIN32)
-            return os == WINDOWS;
+            return os == OS_WINDOWS; // same here
             #endif
             
             #if defined(__APPLE__)
-            return os == APPLE;
+            return os == OS_APPLE; // same here
             #endif
             
             return false;

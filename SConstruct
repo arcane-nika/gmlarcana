@@ -53,15 +53,75 @@ if msvc_use_script not in ["", False, None]:
     default_target_arch = "x64"
 else:
   # if no MSVC use script, then read the environment variables.
-  env = Environment(ENV=os.environ)
+
+  # DEBUG CODE (signature: annika marie schlögel)
+
+  # LEGACY CODE
+  #env = Environment(ENV=os.environ, HOST_OS=d(args, "HOST_OS", "")) # introduce an argument override (signature: annika marie schlögel)
+
+  # NEW CODE
+  env = Environment(
+    ENV=os.environ,
+    HOST_OS=d(args, "HOST_OS", ""),
+    CC=d(args, "CC", None),
+    CXX=d(args, "CXX", None)
+  )
+
+  # DEBUG CODE END
+
   msvc_use_script = False # to check falsiness more easily
 
 def plural(count, s1, sp=None):
   return s1 if count == 1 else (sp if sp is not None else (s1 + "s"))
 
-os_is_windows = env["HOST_OS"] == "win32" or platform.system() == "Windows"
-os_is_osx = sys.platform == "darwin" or platform.system() == "Darwin"
-os_is_linux = not os_is_windows and not os_is_osx # TODO: correct way to identify linux?
+# TODO: is this the correct way to detect MSVC?
+msvc = not not (
+  msvc_use_script or env.get("_MSVC_OUTPUT_FLAG", None)
+)
+
+# DEBUG CODE (signature: annika marie schlögel)
+
+# LEGACY CODE
+#os_is_windows = env["HOST_OS"] == "win32" or platform.system() == "Windows"
+#target_is_windows = env["HOST_OS"] == "win32"
+#os_is_osx = sys.platform == "darwin" or platform.system() == "Darwin"
+#os_is_linux = not os_is_windows and not os_is_osx # TODO: correct way to identify linux?
+
+# NEW CODE
+# Host OS = the OS SCons itself is running on.
+host_is_windows = platform.system() == "Windows"
+host_is_osx = platform.system() == "Darwin"
+host_is_linux = not host_is_windows and not host_is_osx
+
+# Target OS = the OS we are building GMLarcana for.
+target_is_windows = env["HOST_OS"] == "win32"
+target_is_osx = env["HOST_OS"] == "osx"
+target_is_linux = not target_is_windows and not target_is_osx
+
+# MinGW cross-compilation.
+# The compiler's sysroot is:
+#   /usr/i686-w64-mingw32/sys-root
+# and MinGW's actual headers/libs are under:
+#   sysroot/mingw/include
+#   sysroot/mingw/lib
+if target_is_windows and not msvc:
+  mingw_prefix = "/usr/i686-w64-mingw32/sys-root/mingw"
+
+  env.Append(
+    CPPPATH=[os.path.join(mingw_prefix, "include")],
+    LIBPATH=[os.path.join(mingw_prefix, "lib")]
+  )
+
+  print("MinGW target include:", os.path.join(mingw_prefix, "include"))
+  print("MinGW target library:", os.path.join(mingw_prefix, "lib"))
+
+# Keep the old names for target-dependent build logic.
+os_is_windows = target_is_windows
+os_is_osx = target_is_osx
+os_is_linux = target_is_linux
+
+# DEBUG CODE END
+
 os_name = "(unknown os)"
 if os_is_windows:
   os_name = "Windows"
@@ -69,13 +129,16 @@ if os_is_linux:
   os_name = "Linux"
 if os_is_osx:
   os_name = "osx"
-
-# TODO: is this the correct way to detect MSVC?
-msvc = not not (
-  msvc_use_script or env.get("_MSVC_OUTPUT_FLAG", None)
-)
     
-pathsplit = re.compile("[:;]" if not os_is_windows else "[;]")
+# DEBUG CODE (signature: annika marie schlögel)
+
+# LEGACY CODE
+#pathsplit = re.compile("[:;]" if not os_is_windows else "[;]")
+
+# NEW CODE
+pathsplit = re.compile("[;]" if host_is_windows else "[:]")
+
+# DEBUG CODE END
 
 # add CPATH and INCLUDE to CPPPATH (include directories)
 env.Append(CPPPATH=pathsplit.split(d(os.environ, "CPATH", "")))
@@ -284,7 +347,8 @@ if not d(os.environ, "NO_LD_LIBRARY_PATH_ADDITIONS"):
     ])
     
   elif os_is_osx:
-    env.Append(CPPPATH=["/usr/include", "/usr/local/include", "/usr/local/Cellar"])
+    if not target_is_windows:
+      env.Append(CPPPATH=["/usr/include", "/usr/local/include", "/usr/local/Cellar"])
     env.Append(LIBPATH=["/usr/lib", "/usr/local/lib", "/usr/local/Cellar"])
   elif os_is_windows:
     # find vcpkg (optional)
@@ -437,7 +501,8 @@ else:
   # gcc and clang
 
   # C++ standard
-  env.Append(CXXFLAGS=["-std=c++17"])
+  #env.Append(CXXFLAGS=["-std=c++17"]) # LEGACY CODE
+  env.Append(CXXFLAGS=["-std=c++17", "-fext-numeric-literals"]) # DEBUG CODE FOR mingw32
 
   # warn if non-void function is missing a return
   env.Append(CCFLAGS=["-Werror=return-type"])
@@ -464,13 +529,18 @@ else:
     env.Append(
       CCFLAGS=["-static-libgcc", "-static-libstdc++"],
       LINKFLAGS=["-static-libgcc", "-static-libstdc++"],
-      LIBS=["shlwapi"]
+      LIBS=["shlwapi", "comdlg32"]
     )
     # TODO: mingw set icon (windres ogm.rc)
 
 # ---------------------------------------------------------------------------------------------------------------------
 
 # -- check for required and optional library dependencies -------------------------------------------------------------
+print("DEBUG CPPPATH:", env.get("CPPPATH"))
+print("DEBUG LIBPATH:", env.get("LIBPATH"))
+print("DEBUG CC:", env.get("CC"))
+print("DEBUG CXX:", env.get("CXX"))
+
 conf = Configure(env.Clone() if msvc else env)
 
 # this will be set to true later if a required dependency is not found.
@@ -576,15 +646,32 @@ def find_dependency(lib, header, language="c", required=False, message=None, def
     else:
       lib = "\" or \"".join(lib)
   else:
-  # SOME DEBUG CODE HERE (signature: annika marie schlögel, changes: 3)
-    found_lib = conf.CheckLib(lib) if lib else True
+    if lib:
+      if target_is_windows and not msvc:
+        found_lib = any(
+          conf.CheckLib(l + suffix)
+          for l in lib
+          for suffix in library_name_suffixes
+        )
+      else:
+        found_lib = conf.CheckLib(lib)
+    else:
+      found_lib = True
 
   _conf = conf
+  if header == "glm/glm.hpp":
+    old_cpppath = list(_conf.env["CPPPATH"])
+    if not target_is_windows:
+      _conf.env.Append(CPPPATH=["/usr/include"])
+
   found_header = (
     _conf.CheckCHeader(header)
     if language == "c"
     else _conf.CheckCXXHeader(header)
   ) if header else True
+
+  if header == "glm/glm.hpp":
+    _conf.env["CPPPATH"] = old_cpppath
   # SOME DEBUG CODE ENDS HERE
 
   if not found_lib or not found_header:
@@ -627,7 +714,7 @@ def find_dependency(lib, header, language="c", required=False, message=None, def
 # Open Asset Importer Library (assimp)
 find_dependency("assimp", "assimp/Importer.hpp", "cpp", False, "Cannot import models.", "ASSIMP")
 
-# DEBUG CODE (signature: annika marie schlögel, changes: 3)
+# DEBUG CODE (signature: annika marie schlögel, changes: 5)
 # Fedora / modern Python support
 import subprocess
 
@@ -637,10 +724,14 @@ try:
         text=True
     ).strip().split()
 
-    for flag in includes:
-        if flag.startswith("-I"):
-            env.Append(CPPPATH=[flag[2:]])
-            conf.env.Append(CPPPATH=[flag[2:]])
+    # Python.h is needed for host-side Zugbruecke support,
+    # but these are host Python headers and must not be used
+    # when compiling the Windows target with MinGW.
+    if not target_is_windows:
+        for flag in includes:
+            if flag.startswith("-I"):
+                env.Append(CPPPATH=[flag[2:]])
+                conf.env.Append(CPPPATH=[flag[2:]])
 except Exception as e:
     print("python3-config failed:", e)
 # DEBUG CODE END
@@ -693,11 +784,24 @@ if not opts.headless:
   elif os_is_osx:
     env.Append(LINKFLAGS="-framework OpenGL")
   if os_is_windows:
-    find_dependency(["glut32", "freeglut", "glut", "freeglut32"], "gl/glut.h", "c", True)
+    find_dependency(["glut32", "freeglut", "glut", "freeglut32"], "GL/glut.h" if target_is_windows else "gl/glut.h", "c", True)
     find_dependency(["opengl32", "opengl"], None, None, True, force_shared=True)
     find_dependency(["glu32", "glu"], None, None, True)
   find_dependency(["GLEW", "glew32", "glew", "glew32s"], "GL/glew.h", "c", True, force_shared=True)
-  find_dependency(None, "glm/glm.hpp", "cpp", True)
+
+  # just add the path temporarily, glm is only header and thus the linux version can be used and the path is then removed
+
+  # BLOCK IS OBSOLETE BECAUSE I COPIED THE HEADERFILE
+
+  #env.Append(CPPPATH=["/usr/include"])
+  #if target_is_windows and not msvc:
+  #  if os.path.exists("/usr/include/glm/glm.hpp"):
+  #    pass
+  #  else:
+  #    find_dependency(None, "glm/glm.hpp", "cpp", True)
+  #else:
+  #  find_dependency(None, "glm/glm.hpp", "cpp", True)
+  #env["CPPPATH"].remove("/usr/include")
 
   # (nota bene: some of the above dependencies are required)
   define("GFX_AVAILABLE")

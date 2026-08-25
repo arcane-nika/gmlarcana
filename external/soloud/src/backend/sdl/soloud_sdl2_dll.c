@@ -24,7 +24,7 @@ freely, subject to the following restrictions:
 #if defined(WITH_SDL2)
 
 #include <stdlib.h>
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__) // fix for MINGW compiler to be recognized as windows
 #define WINDOWS_VERSION
 #endif
 #ifndef EMSCRIPTEN

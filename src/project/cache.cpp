@@ -12,7 +12,16 @@ uint64_t cache_version()
     #ifdef OGM_BUILD_GMTOFF
         return __TIME_UNIX__ - (OGM_BUILD_GMTOFF);
     #else
-        #ifdef __GNUC__
+        // BUG FIX (signature: annika marie schlögel)
+
+        // LEGACY CODE
+        //#ifdef __GNUC__
+
+        // NEW CODE
+        #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__MINGW64__)
+
+        // BUG FIX END
+        
             time_t t = time(NULL);
             struct tm lt = {0};
             localtime_r(&t, &lt);

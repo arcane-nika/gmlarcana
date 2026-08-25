@@ -4,6 +4,12 @@
 #include "ogm/common/util.hpp"
 #include "ogm/interpreter/Variable.hpp"
 
+// BUG FIX (signature: annika marie schlögel)
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+// BUG FIX END
+
 #include <string>
 #include <vector>
 #include <map>

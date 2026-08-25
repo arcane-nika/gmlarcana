@@ -4,7 +4,9 @@
 
 #if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
 
-#include <Windows.h>
+// BUG FIX (signature:annika marie schlögel)
+// changed Windows.h to windows.h as cross-compiling w/ Fedora 44, MINGW only works case-sensitive and the MINGW header is called windows.h
+#include <windows.h>
 
 #ifndef CPP_FILESYSTEM_ENABLED
 #include <shellapi.h>

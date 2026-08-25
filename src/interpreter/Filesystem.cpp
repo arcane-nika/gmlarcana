@@ -134,19 +134,31 @@ std::string Filesystem::resolve_file_path(const std::string& path, bool write)
 {
     init();
 
-    if (m_sandbox_impl == SandboxImpl::HOOK_WORKINGDIR) return path;
+    // BUG FIX (signature: annika marie schlögel)
+    // prepare the file paths for POSIX based systems if necessary
+    std::string clean_path = path;
+    #ifndef _WIN32
+    for (char& c : clean_path)
+    {
+        if (c == '\\')
+            c = '/';
+    }
+    #endif
+    // BUG FIX END
 
-    if (m_sandbox_impl == SandboxImpl::NONE) return path;
+    if (m_sandbox_impl == SandboxImpl::HOOK_WORKINGDIR) return clean_path;
+
+    if (m_sandbox_impl == SandboxImpl::NONE) return clean_path;
 
     bool absolute = false;
 
     #if defined(_WIN32)
-    if (!PathIsRelative(path.c_str()))
+    if (!PathIsRelative(clean_path.c_str()))
     {
         absolute = true;
     }
     #else
-    if (starts_with(path, "/"))
+    if (starts_with(clean_path, "/"))
     {
         absolute = true;
     }
@@ -162,11 +174,11 @@ std::string Filesystem::resolve_file_path(const std::string& path, bool write)
         {
             buff[i] = 0;
         }
-        strcpy(buff, path.c_str());
+        strcpy(buff, clean_path.c_str());
         PathStripToRootA(buff);
-        return case_insensitive_native_path(buff, path.substr(strlen(buff)));
+        return case_insensitive_native_path(buff, clean_path.substr(strlen(buff)));
         #else
-        return case_insensitive_native_path("/", path.substr(1));
+        return case_insensitive_native_path("/", clean_path.substr(1));
         #endif
     }
 
@@ -174,13 +186,13 @@ std::string Filesystem::resolve_file_path(const std::string& path, bool write)
     if (write)
     {
     working_path:
-        return case_insensitive_native_path(m_working_directory, path);
+        return case_insensitive_native_path(m_working_directory, clean_path);
     }
     else
     {
-        if (file_is_included(path))
+        if (file_is_included(clean_path))
         {
-            return case_insensitive_native_path(m_included_directory, path);
+            return case_insensitive_native_path(m_included_directory, clean_path);
         }
         else
         {

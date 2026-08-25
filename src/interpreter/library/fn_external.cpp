@@ -212,7 +212,21 @@ namespace
                     // TODO: don't copy-allocate the string if it can be avoided.
                     std::string s {argv[i].string_view()};
                     char** nv = alloc<char*>();
+
+                    // BUG FIX (signature: annika marie schlögel)
+                    
+                    // LEGACY CODE
+                    //*nv = _strdup(s.c_str());
+
+                    // NEW CODE
+                    #ifdef _WIN32
+                    *nv = ::_strdup(s.c_str());
+                    #else
                     *nv = _strdup(s.c_str());
+                    #endif
+
+                    // BUG FIX END
+
                     values[i-1] = nv;
                 }
                 else
@@ -262,7 +276,7 @@ namespace
                 else
                 #endif
                 {
-                    external_call_addr(out, ed.m_dll_fn_address, ed.m_ct, ed.m_sig.c_str(), argc, argv);
+                    external_call_addr(out, reinterpret_cast<void*>(ed.m_dll_fn_address), ed.m_ct, ed.m_sig.c_str(), argc, argv);
                 }
             }
             catch (std::exception& e)

@@ -3,7 +3,10 @@
 #include "ogm/sys/util_sys.hpp"
 #include "fs_share.hpp"
 #include <iostream>
-#include <Windows.h>
+
+// BUG FIX (signature:annika marie schlögel)
+// changed Windows.h to windows.h as cross-compiling w/ Fedora 44, MINGW only works case-sensitive and the MINGW header is called windows.h
+#include <windows.h>
 
 
 namespace ogm

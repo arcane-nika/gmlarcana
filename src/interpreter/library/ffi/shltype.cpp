@@ -27,15 +27,15 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
         
         if (get_extension(path) == ".so"s)
         {
-            shtype.os = SharedLibraryType::UNIX;
+            shtype.os = SharedLibraryType::OS_UNIX;
         }
         else if (get_extension(path) == ".dll"s)
         {
-            shtype.os = SharedLibraryType::WINDOWS;
+            shtype.os = SharedLibraryType::OS_WINDOWS;
         }
         if (get_extension(path) == ".dylib"s)
         {
-            shtype.os = SharedLibraryType::APPLE;
+            shtype.os = SharedLibraryType::OS_APPLE;
         }
         
         size_t len = sizeof(shlheader);
@@ -46,19 +46,19 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
         
         switch(shtype.os)
         {
-        case SharedLibraryType::UNIX:
+        case SharedLibraryType::OS_UNIX:
             if (len < 6) return shtype;
             if (shlheader[5] == 1)
             {
-                shtype.arch = SharedLibraryType::x86;
+                shtype.arch = SharedLibraryType::ARCH_x86;
             }
             if (shlheader[5] == 2)
             {
-                shtype.arch = SharedLibraryType::x64;
+                shtype.arch = SharedLibraryType::ARCH_x64;
             }
             break;
             
-        case SharedLibraryType::WINDOWS:
+        case SharedLibraryType::OS_WINDOWS:
             if (len < 64) return shtype;
             {
                 uint16_t magic = *(uint16_t*)(shlheader);
@@ -80,15 +80,15 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
                 {
                     case 0x014c:
                         // i386
-                        shtype.arch = SharedLibraryType::x86;
+                        shtype.arch = SharedLibraryType::ARCH_x86;
                         break;
                     case 0x0200:
                         // IA64
-                        shtype.arch = SharedLibraryType::x64;
+                        shtype.arch = SharedLibraryType::ARCH_x64;
                         break;
                     case 0x8664:
                         // AMD64
-                        shtype.arch = SharedLibraryType::x64;
+                        shtype.arch = SharedLibraryType::ARCH_x64;
                         break;
                     default:
                         // unknown
@@ -97,7 +97,7 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
             }
             break;
             
-        case SharedLibraryType::APPLE:
+        case SharedLibraryType::OS_APPLE:
             // TODO
             break;
         }
@@ -122,18 +122,18 @@ static std::vector<std::string> extensions = {
     ".64.dll",
     ".64.so",
     ".64.dylib",
-    ".dll.x86",
-    ".so.x86",
-    ".dylib.x86",
-    ".dll.x64",
-    ".so.x64",
-    ".dylib.x64",
-    ".x86.dll",
-    ".x86.so",
-    ".x86.dylib",
-    ".x64.dll",
-    ".x64.so",
-    ".x64.dylib",
+    ".dll.ARCH_x86",
+    ".so.ARCH_x86",
+    ".dylib.ARCH_x86",
+    ".dll.ARCH_x64",
+    ".so.ARCH_x64",
+    ".dylib.ARCH_x64",
+    ".ARCH_x86.dll",
+    ".ARCH_x86.so",
+    ".ARCH_x86.dylib",
+    ".ARCH_x64.dll",
+    ".ARCH_x64.so",
+    ".ARCH_x64.dylib",
 };
 
 // platform-dependent path transformation

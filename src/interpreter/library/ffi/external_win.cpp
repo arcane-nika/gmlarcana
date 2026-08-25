@@ -3,6 +3,7 @@
 
 #include "external.h"
 #include "shltype.h"
+#include "ogm/interpreter/Executor.hpp"
 
     #ifdef OGM_WIN32_NT_FIX
         // this seems to be necessary to use the SetDllDirectoryA function.
@@ -52,19 +53,19 @@ external_id_t external_define_impl(const char* path, const char* fnname, CallTyp
     if (g_path_to_dll.find(path) == g_path_to_dll.end())
     {
         ed.m_dl = LoadLibrary(TEXT(path));
-        g_path_to_dll[path] = ed.m_dl;
+        g_path_to_dll[path] = reinterpret_cast<void*>(ed.m_dl);
         g_dll_refc[ed.m_dl] = 1;
     }
     else
     {
-        ed.m_dl = g_path_to_dll[path];
+        ed.m_dl = reinterpret_cast<HINSTANCE>(g_path_to_dll[path]);
         ++g_dll_refc[ed.m_dl];
     }
 
     if (ed.m_dl)
     {
-        ed.m_dl_fn_address = GetProcAddress(ed.m_dl, fnname);
-        if (ed.m_dl_fn_address)
+        ed.m_dll_fn_address = GetProcAddress(ed.m_dl, fnname);
+        if (ed.m_dll_fn_address)
         {
             external_id_t id = get_next_id();
             g_dlls[id] = ed;
@@ -85,7 +86,7 @@ external_id_t external_define_impl(const char* path, const char* fnname, CallTyp
 void* external_get_fn_impl(external_id_t id)
 {
     ExternalDefinition& ed = g_dlls.at(id);
-    return reinterpret_cast<void*>(ed.m_dl_fn_address);
+    return reinterpret_cast<void*>(ed.m_dll_fn_address);
 }
 
 void external_free_impl(external_id_t id)
