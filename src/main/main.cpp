@@ -649,6 +649,14 @@ int umain (int argn, char** argv)
 
 int main (int argc, char** argv)
 {
+    // TEMPORARY DEBUG CODE (signature: annika marie schlögel)
+    try {
+        throw 123;
+    } catch (int v) {
+        std::cout << "=== EXCEPTION TEST A (main) was caught ===";
+    }
+    // TEMPORARY DEBUG CODE END
+
     if (is_terminal())
     {
         enable_terminal_colours();

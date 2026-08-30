@@ -265,6 +265,14 @@ namespace
             execute_bytecode:
                 Bytecode b = frame.m_bytecode.get_bytecode(bytecode_index);
 
+                // TEMPORARY DEBUG CODE (signature: annika marie schlögel)
+                try {
+                    throw 123;
+                } catch (int v) {
+                    std::cout << "=== EXCEPTION TEST B (bytecode execution) was caught ===";
+                }
+                // TEMPORARY DEBUG CODE END
+
                 std::fprintf(
                     stderr,
                     "[DRAW DEBUG] EXECUTING object=%d bytecode=%d\n",
