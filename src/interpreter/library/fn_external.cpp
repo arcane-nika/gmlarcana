@@ -178,7 +178,16 @@ namespace
     {
         // TODO
         // OPTIMIZE: maybe this can all be done without malloc/new!
-        if (argc != strlen(argt) + 1)
+        
+        // BUG FIX (signature: annika marie schlögel)
+
+        // LEGACY CODE (doesnt work because gml function name external_call is then also treated as argument)
+        //if (argc != strlen(argt) + 1)
+
+        // NEW CODE
+        if (argc != strlen(argt) - 1)
+
+        // BUG FIX END
         {
             throw MiscError("incorrect number of arguments for external call.");
         }
@@ -210,7 +219,7 @@ namespace
                 if (argt[i] == 's')
                 {
                     // TODO: don't copy-allocate the string if it can be avoided.
-                    std::string s {argv[i].string_view()};
+                    std::string s {argv[i-1].string_view()};
                     char** nv = alloc<char*>();
 
                     // BUG FIX (signature: annika marie schlögel)
@@ -232,7 +241,7 @@ namespace
                 else
                 {
                     double* d = alloc<double>();
-                    *d = argv[i].castCoerce<real_t>();
+                    *d = argv[i-1].castCoerce<real_t>();
                     values[i-1] = d;
                 }
             }

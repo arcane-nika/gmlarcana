@@ -641,6 +641,22 @@ void ogm::interpreter::fn::draw_set_valign(VO out, V a)
 
 void ogm::interpreter::fn::draw_set_font(VO out, V font)
 {
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cerr << "=== DRAW_SET_FONT START ===" << std::endl;
+
+    try
+    {
+        std::cerr << "=== BEFORE TEST THROW ===" << std::endl;
+        throw MiscError("TEST EXCEPTION");
+    }
+    catch (const MiscError& e)
+    {
+        std::cerr << "=== TEST CAUGHT: " << e.what() << " ===" << std::endl;
+    }
+
+    std::cerr << "=== AFTER TEST CATCH ===" << std::endl;
+    // DEBUG PRINT END
+
     if (font.castCoerce<int32_t>() == -1)
     {
         display->set_font(nullptr);
@@ -657,10 +673,22 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
     {
         try
         {
+            std::cerr << "FONT: before get_texture" << std::endl;
             tv = display->m_textures.get_texture({ af_index });
+            std::cerr << "FONT: after get_texture" << std::endl;
         }
-        catch (const MiscError&)
+        // PROBABLE BUG FIX (signature: annika marie schlögel)
+
+        // LEGACY CODE
+        //catch (const MiscError&)
+
+        // NEW CODE
+        catch (const MiscError& e)
         {
+            // DEBUG PRINT (signature: annika marie schlögel)
+            std::cerr << "!!! CAUGHT MiscError in draw_set_font !!!" << std::endl;
+            std::cerr << "MESSAGE: " << e.what() << std::endl;
+
             asset::Image image(
                 frame.m_fs.resolve_file_path(af->m_path)
             );
@@ -670,11 +698,26 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
             TexturePage* page =
             display->m_textures.create_tpage_from_image(image);
 
+            std::cerr << "[DEBUG] create_tpage_from_image returned page="
+                      << page << std::endl;
+
             tv = display->m_textures.bind_asset_to_tpage_location(
                 { af_index },
                 page,
                 { 0.0, 0.0, 1.0, 1.0 }
             );
+
+            std::cerr << "[DEBUG] bind_asset_to_tpage_location returned tv="
+                      << tv << std::endl;
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "!!! CAUGHT std::exception in draw_set_font !!!" << std::endl;
+            std::cerr << "MESSAGE: " << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::cerr << "!!! CAUGHT UNKNOWN EXCEPTION in draw_set_font !!!" << std::endl;
         }
     }
     // MODIFIED FEATURE END

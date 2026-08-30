@@ -71,7 +71,13 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
                 if (result < 6) return shtype;
                 uint16_t sig = *(uint16_t*)(buff);
                 uint16_t machine = *(uint16_t*)(buff + 4);
-                
+
+                // DEBUG PRINT (signature: annika marie schlögel)
+                std::cout << "PE offset: 0x" << std::hex << offset << std::dec << std::endl;
+                std::cout << "PE sig: 0x" << std::hex << sig << std::dec << std::endl;
+                std::cout << "Machine: 0x" << std::hex << machine << std::dec << std::endl;
+                // DEBUG PRINT END
+
                 if (sig != 0x4550)
                 {
                     return shtype;

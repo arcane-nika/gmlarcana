@@ -22,6 +22,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cstdio>
+#include <iostream>
 
 namespace ogm {
 
@@ -313,9 +314,13 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
         io_buflen = 0;
         return false;
     }
+
+    std::cout << "READFILE: opened\n"; // DEBUG PRINT (signature: annika marie schlögel)
     
     fseek(f, 0, SEEK_END);
     size_t size = ftell(f);
+
+    std::cout << "READFILE: size=" << size << " from=" << from << "\n"; // DEBUG PRINT (signature: annika marie schlögel)
     
     if (from > size)
     {
@@ -329,7 +334,22 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
         size = io_buflen;
     }
     
-    bool result = fread(io_buff,1,io_buflen,f);
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cout << "READFILE: about to fread " << size << " bytes\n";
+    
+    // BUG FIX (signature: annika marie schlögel)
+
+    // LEGACY CODE
+    //bool result = fread(io_buff, 1, io_buflen, f);
+
+    // NEW CODE
+    size_t result = fread(io_buff, 1, size, f);
+
+    // BUG FIX END
+    
+    // DEBUG PRINT (signature: annika marie schlögel)
+    std::cout << "READFILE: fread returned " << result << "\n";
+
     fclose(f);
     io_buflen = result;
     return result == size;

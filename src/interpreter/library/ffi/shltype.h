@@ -65,6 +65,12 @@ namespace ogm::interpreter::ffi
         
         bool platmatch() const
         {
+            std::cout << "platmatch: arch=" << arch
+              << " os=" << os
+              << " is32=" << is_32_bit()
+              << " is64=" << is_64_bit()
+              << "\n";
+
             return archmatch() && osmatch();
         }
         
@@ -90,7 +96,10 @@ namespace ogm::interpreter::ffi
         {
             std::cout << "compatible() entered\n";
 
-            if (platmatch())
+            bool pm = platmatch();
+            std::cout << "AFTER platmatch: " << pm << "\n";
+
+            if (pm)
             {
                 std::cout << "platmatch true\n";
                 return true;
