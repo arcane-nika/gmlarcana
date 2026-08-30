@@ -641,14 +641,6 @@ void ogm::interpreter::fn::draw_set_valign(VO out, V a)
 
 void ogm::interpreter::fn::draw_set_font(VO out, V font)
 {
-    // TEMPORARY DEBUG CODE (signature: annika marie schlögel)
-    try {
-        throw 123;
-    } catch (int v) {
-        std::cout << "=== EXCEPTION TEST A (main) was caught ===";
-    }
-    // TEMPORARY DEBUG CODE END
-
     if (font.castCoerce<int32_t>() == -1)
     {
         display->set_font(nullptr);

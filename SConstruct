@@ -526,11 +526,24 @@ else:
   
   if os_is_windows:
     # mingw
+
+    # PROBABLE BUG FIX (signature: annika marie schlögel)
+
+    # LEGACY CODE (causes the exception handling to crash for some reason)
+    #env.Append(
+    #  CCFLAGS=["-static-libgcc", "-static-libstdc++"],
+    #  LINKFLAGS=["-static-libgcc", "-static-libstdc++"],
+    #  LIBS=["shlwapi", "comdlg32"]
+    #)
+
+    # NEW CODE (uses the shared libraries)
     env.Append(
-      CCFLAGS=["-static-libgcc", "-static-libstdc++"],
-      LINKFLAGS=["-static-libgcc", "-static-libstdc++"],
-      LIBS=["shlwapi", "comdlg32"]
+        LINKFLAGS=["-shared-libgcc", "-static-libstdc++"],
+        LIBS=["shlwapi", "comdlg32"]
     )
+
+    # PROBABLE BUG FIX END
+
     # TODO: mingw set icon (windres ogm.rc)
 
 # ---------------------------------------------------------------------------------------------------------------------
