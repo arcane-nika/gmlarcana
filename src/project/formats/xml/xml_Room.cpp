@@ -194,6 +194,8 @@ void ResourceRoom::load_file_xml()
         }
     }
 
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+    // included correct reading and assignment of port variables
     // views
     pugi::xml_node node_views = node_room.child("views");
     m_data.m_enable_views = s_enable_views != "0";
@@ -217,9 +219,14 @@ void ResourceRoom::load_file_xml()
         def.m_visible = visible != "0";
         def.m_position = { std::stod(xview), std::stod(yview) };
         def.m_dimension = { std::stod(wview), std::stod(hview) };
+        
+        coord_t port_x = std::stod(xport);
+        coord_t port_y = std::stod(yport);
+        coord_t port_w = std::stod(wport);
+        coord_t port_h = std::stod(hport);
+        
         def.m_viewport = {
-            std::stod(xview), std::stod(yview),
-            std::stod(wview), std::stod(hview)
+            port_x, port_y, (port_x + port_w), (port_y + port_h)
         };
         def.m_border = {
             std::stod(hborder), std::stod(vborder)
@@ -228,6 +235,7 @@ void ResourceRoom::load_file_xml()
             std::stod(hspeed), std::stod(vspeed)
         };
     }
+    // MODIFIED FEATURE END
 }
 
 bool ResourceRoom::save_file_xml(std::ofstream& of)

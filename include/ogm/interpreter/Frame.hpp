@@ -1041,6 +1041,12 @@ public:
             bool m_views_enabled = false;
             bool m_view_visible[k_view_count];
             size_t m_view_current = 0;
+
+            // NEW FEATURE (signature: annika marie schlögel)
+            // make variables for the view port
+            geometry::Vector<coord_t> m_viewport_position[k_view_count]{};
+            geometry::Vector<coord_t> m_viewport_dimension[k_view_count]{};
+            // NEW FEATURE END
             
             #ifndef OGM_CAMERAS
             geometry::Vector<coord_t> m_view_position[k_view_count];

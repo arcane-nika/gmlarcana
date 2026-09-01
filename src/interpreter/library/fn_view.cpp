@@ -280,6 +280,96 @@ void ogm::interpreter::fn::setv::view_camera(VO out, OGM_2DARRAY_i V j, V val)
     #endif
 }
 
+// NEW FEATURE (signature: annika marie schlögel)
+void ogm::interpreter::fn::getv::view_wport(VO out, OGM_2DARRAY_i V j)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    out = static_cast<real_t>(frame.m_data.m_viewport_dimension[view_index].x);
+}
+
+void ogm::interpreter::fn::setv::view_wport(VO dummy, OGM_2DARRAY_i V j, V val)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    frame.m_data.m_viewport_dimension[view_index].x = val.castCoerce<coord_t>();
+}
+
+void ogm::interpreter::fn::getv::view_hport(VO out, OGM_2DARRAY_i V j)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    out = static_cast<real_t>(frame.m_data.m_viewport_dimension[view_index].y);
+}
+
+void ogm::interpreter::fn::setv::view_hport(VO dummy, OGM_2DARRAY_i V j, V val)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    frame.m_data.m_viewport_dimension[view_index].y = val.castCoerce<coord_t>();
+}
+
+void ogm::interpreter::fn::getv::view_xport(VO out, OGM_2DARRAY_i V j)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    out = static_cast<real_t>(frame.m_data.m_viewport_position[view_index].x);
+}
+
+void ogm::interpreter::fn::setv::view_xport(VO dummy, OGM_2DARRAY_i V j, V val)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    frame.m_data.m_viewport_position[view_index].x = val.castCoerce<coord_t>();
+}
+
+void ogm::interpreter::fn::getv::view_yport(VO out, OGM_2DARRAY_i V j)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    out = static_cast<real_t>(frame.m_data.m_viewport_position[view_index].y);
+}
+
+void ogm::interpreter::fn::setv::view_yport(VO dummy, OGM_2DARRAY_i V j, V val)
+{
+    size_t view_index = j.castCoerce<size_t>();
+    if (view_index >= frame.k_view_count)
+    {
+        throw MiscError("No view numbered " + std::to_string(view_index));
+    }
+
+    frame.m_data.m_viewport_position[view_index].y = val.castCoerce<coord_t>();
+}
+// NEW FEATURE END
+
 void ogm::interpreter::fn::getv::view_visible(VO out)
 {
     size_t view_index = frame.m_data.m_view_current;

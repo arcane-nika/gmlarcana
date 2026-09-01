@@ -732,6 +732,12 @@ void Frame::change_room(asset_index_t room_index)
         for (const AssetRoom::ViewDefinition& def : room->m_views)
         {
             m_data.m_view_visible[i] = def.m_visible;
+
+            // NEW FEATURE (signature: annika marie schlögel)
+            // seeding the view port values with the room's view definitions
+            m_data.m_viewport_position[i] = def.m_viewport.m_start;
+            m_data.m_viewport_dimension[i] = def.m_viewport.diagonal();
+            // NEW FEATURE END
             
             #ifndef OGM_CAMERAS
                 m_data.m_view_position[i] = def.m_position;
@@ -851,6 +857,13 @@ void Frame::serialize(typename state_stream<write>::state_stream_t& s)
     for (size_t i = 0; i < k_view_count; ++i)
     {
         _serialize<write>(s, m_data.m_view_visible[i]);
+
+        // NEW FEATURE (signature: annika marie schlögel)
+        // serialize the view port values to preserve them across room changes
+        _serialize<write>(s, m_data.m_viewport_position[i]);
+        _serialize<write>(s, m_data.m_viewport_dimension[i]);
+        // NEW FEATURE END
+
         #ifndef OGM_CAMERAS
         _serialize<write>(s, m_data.m_view_position[i]);
         _serialize<write>(s, m_data.m_view_dimension[i]);
