@@ -18,7 +18,7 @@ project_name = "GMLarcana"
 project_abbreviation = "gmla"
 version_major = "0"
 version_minor = "9"
-version_patch = "19"
+version_patch = "20"
 version_name = "alpha"
 project_description = "Interpreter for GML 1.4"
 
@@ -60,12 +60,28 @@ else:
   #env = Environment(ENV=os.environ, HOST_OS=d(args, "HOST_OS", "")) # introduce an argument override (signature: annika marie schlögel)
 
   # NEW CODE
-  env = Environment(
-    ENV=os.environ,
-    HOST_OS=d(args, "HOST_OS", ""),
-    CC=d(args, "CC", None),
-    CXX=d(args, "CXX", None)
-  )
+  target_os = d(args, "HOST_OS", "")
+
+  env_kwargs = {
+    "ENV": os.environ,
+    "HOST_OS": target_os,
+  }
+
+  # When cross-compiling from Linux to 32-bit Windows, use MinGW.
+  if target_os == "win32" and platform.system() != "Windows":
+    env_kwargs.update({
+      "CC": "i686-w64-mingw32-gcc",
+      "CXX": "i686-w64-mingw32-g++",
+      "AR": "i686-w64-mingw32-ar",
+      "RANLIB": "i686-w64-mingw32-ranlib",
+    })
+
+  # Explicit command-line values take precedence.
+  for tool in ["CC", "CXX", "AR", "RANLIB"]:
+    if tool in args:
+      env_kwargs[tool] = args[tool]
+
+  env = Environment(**env_kwargs)
 
   # DEBUG CODE END
 
