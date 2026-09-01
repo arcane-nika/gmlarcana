@@ -12,15 +12,15 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
     SharedLibraryType shtype;
 
     // DEBUG BLOCK (signature: annika marie schlögel)
-    std::cout << "Checking:  " << path << std::endl;
+    /*std::cout << "Checking:  " << path << std::endl;
     std::cout << "Exists:    " << path_exists(path) << std::endl;
-    std::cout << "Readable:  " << can_read_file(path) << std::endl;
+    std::cout << "Readable:  " << can_read_file(path) << std::endl;*/
     // DEBUG BLOCK END
     
     if (path_exists(path) && can_read_file(path))
     {
         // DEBUG BLOCK (signature: annika marie schlögel)
-        std::cout << "Entered detection block" << std::endl;
+        //std::cout << "Entered detection block" << std::endl;
         // DEBUG BLOCK END
 
         memset(shlheader, 0, sizeof(shlheader));
@@ -73,9 +73,9 @@ SharedLibraryType getSharedLibraryTypeFromPath(const std::string& path)
                 uint16_t machine = *(uint16_t*)(buff + 4);
 
                 // DEBUG PRINT (signature: annika marie schlögel)
-                std::cout << "PE offset: 0x" << std::hex << offset << std::dec << std::endl;
+                /*std::cout << "PE offset: 0x" << std::hex << offset << std::dec << std::endl;
                 std::cout << "PE sig: 0x" << std::hex << sig << std::dec << std::endl;
-                std::cout << "Machine: 0x" << std::hex << machine << std::dec << std::endl;
+                std::cout << "Machine: 0x" << std::hex << machine << std::dec << std::endl;*/
                 // DEBUG PRINT END
 
                 if (sig != 0x4550)

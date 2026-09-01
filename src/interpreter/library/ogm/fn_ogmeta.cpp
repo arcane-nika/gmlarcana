@@ -252,25 +252,25 @@ namespace
                     instance->m_data.m_object_index
                 );
 
-            std::fprintf(
+            /*std::fprintf(
                 stderr,
                 "[DRAW DEBUG] object=%d bytecode=%d visible=%d\n",
                 instance->m_data.m_object_index,
                 bytecode_index,
                 instance->m_data.m_visible
-            );
+            );*/
 
             if (bytecode_index != k_no_bytecode)
             {
             execute_bytecode:
                 Bytecode b = frame.m_bytecode.get_bytecode(bytecode_index);
 
-                std::fprintf(
+                /*std::fprintf(
                     stderr,
                     "[DRAW DEBUG] EXECUTING object=%d bytecode=%d\n",
                     instance->m_data.m_object_index,
                     bytecode_index
-                );
+                );*/
 
                 frame.m_data.m_event_context.m_object =
                     instance->m_data.m_object_index;
@@ -284,11 +284,11 @@ namespace
                 bytecode_index =
                     frame.m_config.m_default_events[static_cast<size_t>(event)];
 
-                std::fprintf(
+                /*std::fprintf(
                     stderr,
                     "[DRAW DEBUG] no object bytecode, default=%d\n",
                     bytecode_index
-                );
+                );*/
 
                 if (bytecode_index != k_no_bytecode)
                 {

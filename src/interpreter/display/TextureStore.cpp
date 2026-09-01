@@ -542,7 +542,7 @@ TexturePage* TextureStore::create_tpage_from_callback(TexturePage::ImageSupplier
 TexturePage* TextureStore::create_tpage_from_image(asset::Image& image)
 {
     // DEBUG PRINT (signature: annika marie schlögel)
-    std::cerr << "[DEBUG] create_tpage_from_image() ENTER" << std::endl;
+    //std::cerr << "[DEBUG] create_tpage_from_image() ENTER" << std::endl;
 
     TexturePage* page = new TexturePage();
     
@@ -583,23 +583,23 @@ TexturePage* TextureStore::create_tpage_from_image(asset::Image& image)
 // NEW CODE
 TextureView* TextureStore::get_texture(ImageDescriptor id)
 {
-    std::cerr << "[DEBUG] get_texture ENTER"
+    /*std::cerr << "[DEBUG] get_texture ENTER"
               << " asset_index=" << id.m_asset_index
               << " image_index=" << id.m_image_index
-              << std::endl;
+              << std::endl;*/
 
     auto result = m_descriptor_map.find(id);
 
-    std::cerr << "[DEBUG] get_texture AFTER find" << std::endl;
+    //std::cerr << "[DEBUG] get_texture AFTER find" << std::endl;
 
     if (result == m_descriptor_map.end())
     {
-        std::cerr << "[DEBUG] get_texture: NOT FOUND" << std::endl;
+        //std::cerr << "[DEBUG] get_texture: NOT FOUND" << std::endl;
         throw MiscError("No texture found for the given asset");
     }
     else
     {
-        std::cerr << "[DEBUG] get_texture: FOUND" << std::endl;
+        //std::cerr << "[DEBUG] get_texture: FOUND" << std::endl;
         return result->second;
     }
 }
@@ -626,11 +626,11 @@ TextureView* TextureStore::bind_asset_to_callback(ImageDescriptor id, TexturePag
 TextureView* TextureStore::bind_asset_to_tpage_location(ImageDescriptor id, TexturePage* tpage, ogm::geometry::AABB<real_t> location)
 {
     // DEBUG CODE (signature: annika marie schlögel)
-    std::cerr << "[DEBUG] bind_asset_to_tpage_location"
+    /*std::cerr << "[DEBUG] bind_asset_to_tpage_location"
               << " asset_index=" << id.m_asset_index
               << " image_index=" << id.m_image_index
               << " tpage=" << tpage
-              << std::endl;
+              << std::endl;*/
     // DEBUG CODE END
 
     TextureView* view = new TextureView();

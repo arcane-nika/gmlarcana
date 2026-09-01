@@ -657,9 +657,9 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
     {
         try
         {
-            std::cerr << "FONT: before get_texture" << std::endl;
+            //std::cerr << "FONT: before get_texture" << std::endl;
             tv = display->m_textures.get_texture({ af_index });
-            std::cerr << "FONT: after get_texture" << std::endl;
+            //std::cerr << "FONT: after get_texture" << std::endl;
         }
         // PROBABLE BUG FIX (signature: annika marie schlögel)
 
@@ -670,8 +670,8 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
         catch (const MiscError& e)
         {
             // DEBUG PRINT (signature: annika marie schlögel)
-            std::cerr << "!!! CAUGHT MiscError in draw_set_font !!!" << std::endl;
-            std::cerr << "MESSAGE: " << e.what() << std::endl;
+            /*std::cerr << "!!! CAUGHT MiscError in draw_set_font !!!" << std::endl;
+            std::cerr << "MESSAGE: " << e.what() << std::endl;*/
 
             asset::Image image(
                 frame.m_fs.resolve_file_path(af->m_path)
@@ -682,8 +682,8 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
             TexturePage* page =
             display->m_textures.create_tpage_from_image(image);
 
-            std::cerr << "[DEBUG] create_tpage_from_image returned page="
-                      << page << std::endl;
+            /*std::cerr << "[DEBUG] create_tpage_from_image returned page="
+                      << page << std::endl;*/
 
             tv = display->m_textures.bind_asset_to_tpage_location(
                 { af_index },
@@ -691,8 +691,8 @@ void ogm::interpreter::fn::draw_set_font(VO out, V font)
                 { 0.0, 0.0, 1.0, 1.0 }
             );
 
-            std::cerr << "[DEBUG] bind_asset_to_tpage_location returned tv="
-                      << tv << std::endl;
+            /*std::cerr << "[DEBUG] bind_asset_to_tpage_location returned tv="
+                      << tv << std::endl;*/
         }
         catch (const std::exception& e)
         {

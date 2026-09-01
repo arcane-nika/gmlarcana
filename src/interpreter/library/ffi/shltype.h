@@ -65,11 +65,11 @@ namespace ogm::interpreter::ffi
         
         bool platmatch() const
         {
-            std::cout << "platmatch: arch=" << arch
+            /*std::cout << "platmatch: arch=" << arch
               << " os=" << os
               << " is32=" << is_32_bit()
               << " is64=" << is_64_bit()
-              << "\n";
+              << "\n";*/
 
             return archmatch() && osmatch();
         }
@@ -94,14 +94,14 @@ namespace ogm::interpreter::ffi
         // NEW CODE
         bool compatible() const
         {
-            std::cout << "compatible() entered\n";
+            //std::cout << "compatible() entered\n";
 
             bool pm = platmatch();
-            std::cout << "AFTER platmatch: " << pm << "\n";
+            //std::cout << "AFTER platmatch: " << pm << "\n";
 
             if (pm)
             {
-                std::cout << "platmatch true\n";
+                //std::cout << "platmatch true\n";
                 return true;
             }
 

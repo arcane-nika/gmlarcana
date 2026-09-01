@@ -315,12 +315,12 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
         return false;
     }
 
-    std::cout << "READFILE: opened\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "READFILE: opened\n"; // DEBUG PRINT (signature: annika marie schlögel)
     
     fseek(f, 0, SEEK_END);
     size_t size = ftell(f);
 
-    std::cout << "READFILE: size=" << size << " from=" << from << "\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "READFILE: size=" << size << " from=" << from << "\n"; // DEBUG PRINT (signature: annika marie schlögel)
     
     if (from > size)
     {
@@ -335,7 +335,7 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
     }
     
     // DEBUG PRINT (signature: annika marie schlögel)
-    std::cout << "READFILE: about to fread " << size << " bytes\n";
+    //std::cout << "READFILE: about to fread " << size << " bytes\n";
     
     // BUG FIX (signature: annika marie schlögel)
 
@@ -348,7 +348,7 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
     // BUG FIX END
     
     // DEBUG PRINT (signature: annika marie schlögel)
-    std::cout << "READFILE: fread returned " << result << "\n";
+    //std::cout << "READFILE: fread returned " << result << "\n";
 
     fclose(f);
     io_buflen = result;

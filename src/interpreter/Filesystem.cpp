@@ -243,23 +243,23 @@ std::string Filesystem::file_find_first(const std::string& pattern, int attribut
     // PROBABLE BUG FIX END
 
     // DEBUG PRINT (signature: annika marie schlögel)
-    std::cout << "pattern   = " << pattern << '\n';
+    /*std::cout << "pattern   = " << pattern << '\n';
     std::cout << "resolved  = " << resolved << '\n';
     std::cout << "working   = " << m_working_directory << '\n';
-    std::cout << "included  = " << m_included_directory << '\n';
+    std::cout << "included  = " << m_included_directory << '\n';*/
     // DEBUG PRINT END
 
-    std::cout << "ENTERING search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "ENTERING search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
     std::filesystem::path search_path(resolved);
-    std::cout << "SUCCESSFUL EXECUTION search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "SUCCESSFUL EXECUTION search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
 
-    std::cout << "ENTERING directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "ENTERING directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
     std::filesystem::path directory = search_path.parent_path();
-    std::cout << "SUCCESSFUL EXECUTION directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "SUCCESSFUL EXECUTION directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
 
-    std::cout << "ENTERING wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "ENTERING wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
     std::string wildcard = search_path.filename().string();
-    std::cout << "SUCCESSFUL EXECUTION wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
+    //std::cout << "SUCCESSFUL EXECUTION wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
 
     for (const auto& entry : std::filesystem::directory_iterator(directory))
     {
