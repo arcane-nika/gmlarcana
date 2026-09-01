@@ -77,14 +77,47 @@ void ogm::interpreter::fn::file_text_read_real(VO out, V f)
     out = r;
 }
 
-void ogm::interpreter::fn::file_text_read_string(VO out, V f)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+
+// LEGACY CODE (counts whitespace as delimiter, which is not how GameMaker handles string reads)
+/*void ogm::interpreter::fn::file_text_read_string(VO out, V f)
 {
     // TODO error-check index valid and correct access type
     FileHandle& fh = frame.m_fs.get_file_handle(f.castCoerce<std::int32_t>());
     std::string r;
     (*fh.m_ifstream) >> r;
     out = r;
+}*/
+
+// NEW CODE (reads until \r\n, \r, or \n which is how GameMaker handles string reads)
+void ogm::interpreter::fn::file_text_read_string(VO out, V f)
+{
+    FileHandle& fh =
+        frame.m_fs.get_file_handle(f.castCoerce<std::int32_t>());
+
+    std::istream& stream = *fh.m_ifstream;
+    std::string result;
+
+    while (true)
+    {
+        const int character = stream.peek();
+
+        if (
+            character == std::char_traits<char>::eof()
+            || character == '\r'
+            || character == '\n'
+        )
+        {
+            break;
+        }
+
+        result.push_back(static_cast<char>(stream.get()));
+    }
+
+    out = result;
 }
+
+// MODIFIED FEATURE END
 
 void ogm::interpreter::fn::file_text_readln(VO out, V f)
 {

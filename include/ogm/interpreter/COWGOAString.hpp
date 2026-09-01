@@ -327,6 +327,7 @@ namespace ogm::interpreter
            return o << s.view();
         }
 
+        // MODIFIED FEATURE (signature: annika marie schlögel)
         // only sometimes requires copy.
         COWGOAString& operator += (const std::string_view& _lhs) {
             // we have to copy the string_view here, as it could be a view into
@@ -334,12 +335,17 @@ namespace ogm::interpreter
             assert_valid();
             assert_no_null();
             std::string lhs{ _lhs };
+
+            // return early if string is empty, concatenating empty string calls front() on empty string_view, which is undefined behavior and crashes.
+            if (lhs.empty()) return *this;
+
             const Range& r = { m_range.m_end, m_range.m_end + lhs.length() };
             memcpy(edit(r), &lhs.front(), lhs.length());
             assert_valid();
             assert_no_null();
             return *this;
         }
+        // MODIFIED FEATURE END
 
         // only sometimes requires copy.
         COWGOAString& operator += (const COWGOAString& lhs) {
