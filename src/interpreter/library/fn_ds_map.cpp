@@ -299,6 +299,7 @@ void ogm::interpreter::fn::ds_map_size(VO out, V vindex)
     out = static_cast<real_t>(map.size());
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
 void ogm::interpreter::fn::ds_map_find_first(VO out, V vindex)
 {
     ds_index_t index = vindex.castCoerce<ds_index_t>();
@@ -310,10 +311,13 @@ void ogm::interpreter::fn::ds_map_find_first(VO out, V vindex)
     auto& map = ds.m_data;
     if (map.empty())
     {
-        throw UnknownIntendedBehaviourError("Finding first element of empty map.");
+        //throw UnknownIntendedBehaviourError("Finding first element of empty map.");
+        out = Variable(); // write VT_UNDEFINED to out, as it actually is the intended behaviour.
+        return;
     }
     out.copy(std::get<0>(*map.begin()));
 }
+// MODIFIED FEATURE END
 
 void ogm::interpreter::fn::ds_map_find_last(VO out, V vindex)
 {
