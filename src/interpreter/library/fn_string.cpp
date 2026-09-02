@@ -255,12 +255,44 @@ void ogm::interpreter::fn::string_set_byte_at(VO out, V v, V pos, V b)
   out = (char_t*)s.c_str();
 }
 
+// REWRITTEN FEATURE (signature: annika marie schlögel)
+// makes sure real -> string conversion is done correctly according to gml 1.4
 void ogm::interpreter::fn::string_char_at(VO out, V v, V pos)
 {
-  string_t s;
-  s.push_back(_char_at(v, pos));
-  out = s;
+    Variable str;
+    ogm::interpreter::fn::string(str, v);
+
+    const real_t p = pos.castCoerce<real_t>();
+    const size_t len = str.string_length();
+
+    if (len == 0)
+    {
+        out = "";
+        str.cleanup();
+        return;
+    }
+
+    // GML: indices <= 0 return the first character.
+    // Indices past the end return an empty string.
+    if (p > static_cast<real_t>(len))
+    {
+        out = "";
+        str.cleanup();
+        return;
+    }
+
+    const size_t index = (p <= 0) ? 0 : static_cast<size_t>(p - 1);
+
+    string_view_t view = str.castCoerce<string_view_t>();
+
+    string_t result;
+    result.push_back(view[index]);
+
+    out = result;
+
+    str.cleanup();
 }
+// REWRITTEN FEATURE END
 
 void ogm::interpreter::fn::string_ord_at(VO out, V v, V pos)
 {

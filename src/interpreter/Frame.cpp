@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <unordered_set>
+#include <iostream>
 
 namespace ogm::interpreter
 {
@@ -446,6 +447,17 @@ void Frame::change_room(asset_index_t room_index)
     {
         throw MiscError("Invalid room id " + std::to_string(room_index));
     }
+
+    // DEBUG PRINT (signature: annika marie schlögel)
+    const char* room_name = m_assets.get_asset_name(room_index);
+    
+    std::cout
+        << "[ROOM] change_room entering: id="
+        << room_index
+        << " name="
+        << (room_name ? room_name : "<unnamed>")
+        << std::endl;
+    // DEBUG PRINT END
     
     #ifdef OGM_LAYERS
     // take note of preferred name and layer depth for all persistent instances.

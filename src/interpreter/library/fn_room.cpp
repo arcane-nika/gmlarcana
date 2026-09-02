@@ -14,6 +14,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <iostream>
 
 using namespace ogm::interpreter;
 using namespace ogm::interpreter::fn;
@@ -23,6 +24,18 @@ using namespace ogm::interpreter::fn;
 void ogm::interpreter::fn::room_goto(VO out, V rm)
 {
     asset_index_t room_index = frame.get_asset_index_from_variable<AssetRoom>(rm);
+    
+    // DEBUG PRINT (signature: annika marie schlögel)
+    const char* room_name = frame.m_assets.get_asset_name(room_index);
+
+    std::cout
+        << "[ROOM] room_goto queued: id="
+        << room_index
+        << " name="
+        << (room_name ? room_name : "<unnamed>")
+        << std::endl;
+    // DEBUG PRINT END
+    
     frame.m_data.m_room_goto_queued = room_index;
 }
 

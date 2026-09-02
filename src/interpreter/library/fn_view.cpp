@@ -138,7 +138,7 @@ void ogm::interpreter::fn::setv::view_yview(VO out, OGM_2DARRAY_i V j, V val)
     #else
     if (Camera* camera = get_view_camera(view_index))
     {
-        camera->m_position.x = val.castCoerce<real_t>();
+        camera->m_position.y = val.castCoerce<real_t>();
     }
     #endif
 }
