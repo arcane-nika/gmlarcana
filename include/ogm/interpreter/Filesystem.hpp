@@ -149,10 +149,13 @@ namespace ogm { namespace interpreter
             return m_included_directory;
         }
 
+        // MODIFIED FEATURE (signature: annika marie schlögel)
+        // upgraded to work with the new normalize_native_path function, which handles all paths correctly
         void set_included_directory(const std::string& str)
         {
-            m_included_directory = str;
+            m_included_directory = normalize_native_path(str);
         }
+        // MODIFIED FEATURE END
 
         // NEW FEATURE (signature: annika marie schlögel)
         void set_project_name(const std::string& str)

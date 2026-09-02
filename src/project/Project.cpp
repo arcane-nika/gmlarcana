@@ -135,10 +135,17 @@ Resource* LazyResource::get()
     return m_ptr.get();
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 Project::Project(const char* path)
-    : m_root(path_directory(path))
-    , m_project_file(path_leaf(path))
-{ }
+{
+    std::string normalized_path =
+        normalize_native_path(path);
+
+    m_root = path_directory(normalized_path);
+    m_project_file = path_leaf(normalized_path);
+}
+// MODIFIED FEATURE END
 
 void Project::populate_tree_default()
 {

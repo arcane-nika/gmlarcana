@@ -26,9 +26,16 @@
 
 namespace ogm {
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// protected against empty strings
 // turns a path like "/a/" to "/a"
 inline std::string trim_terminating_path_separator(std::string a)
 {
+    if (a.empty())
+    {
+        return a;
+    }
+
     if (a.back() == '\\' || a.back() == '/')
     {
         return a.substr(0, a.length() - 1);
@@ -36,6 +43,7 @@ inline std::string trim_terminating_path_separator(std::string a)
 
     return a;
 }
+// MODIFIED FEATURE END
 
 inline std::string path_leaf(const std::string& path) {
   size_t last_bsl = path.find_last_of("\\");
@@ -166,10 +174,82 @@ const char PATH_SEPARATOR = '\\';
 const char PATH_SEPARATOR = '/';
 #endif
 
+// NEW FEATURE (signature: annika marie schlögel)
+inline bool is_path_separator(char c)
+{
+    return c == '\\' || c == '/';
+}
+
+// Converts separators to the target OS format and collapses repeats.
+// Does not resolve ".", "..", relative paths, or symlinks.
+inline std::string normalize_native_path(std::string path)
+{
+    if (path.empty())
+    {
+        return path;
+    }
+
+    std::string result;
+    result.reserve(path.size());
+
+    size_t index = 0;
+
+#ifdef _WIN32
+    // Preserve the two leading separators required by UNC/device paths.
+    if (
+        path.size() >= 2
+        && is_path_separator(path[0])
+        && is_path_separator(path[1])
+    )
+    {
+        result += "\\\\";
+        index = 2;
+
+        while (
+            index < path.size()
+            && is_path_separator(path[index])
+        )
+        {
+            ++index;
+        }
+    }
+#endif
+
+    bool previous_was_separator =
+        !result.empty() && result.back() == PATH_SEPARATOR;
+
+    for (; index < path.size(); ++index)
+    {
+        if (is_path_separator(path[index]))
+        {
+            if (!previous_was_separator)
+            {
+                result.push_back(PATH_SEPARATOR);
+                previous_was_separator = true;
+            }
+        }
+        else
+        {
+            result.push_back(path[index]);
+            previous_was_separator = false;
+        }
+    }
+
+    return result;
+}
+// NEW FEATURE END
+
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 inline std::string path_join(std::string a, std::string b)
 {
-    return trim_terminating_path_separator(a) + std::string(1, PATH_SEPARATOR) + b;
+    return normalize_native_path(
+        trim_terminating_path_separator(a)
+        + std::string(1, PATH_SEPARATOR)
+        + b
+    );
 }
+// MODIFIED FEATURE END
 
 template<typename... T>
 static std::string path_join(std::string a, std::string b, T... c)
@@ -198,16 +278,14 @@ inline std::string path_directory(std::string path) {
   return path.substr(0,sep+1);
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 // converts / and \\ to native path separator
-inline std::string native_path(std::string path) {
-  #ifdef _WIN32
-  return replace_all(path,"/","\\");
-  #elif defined(__unix__) || defined (__APPLE__)
-  return replace_all(path,"\\","/");
-  #else
-  ogm_assert(false);
-  #endif
+inline std::string native_path(std::string path)
+{
+    return normalize_native_path(path);
 }
+// MODIFIED FEATURE END
 
 bool path_exists(const std::string&);
 bool can_read_file(const std::string&);
@@ -298,17 +376,21 @@ inline std::string read_file_contents(std::ifstream& infile) {
     return out;
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 inline void write_file_contents(const char* file, const char* data, size_t len)
 {
     std::ofstream of;
-    of.open(file, std::ios::out | std::ios::binary);
+    of.open(normalize_native_path(file), std::ios::out | std::ios::binary);
     of.write(data, len);
     of.close();
 }
 
 inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size_t& io_buflen, size_t from=0)
 {
-    FILE *f = fopen(path,"rb");
+    std::string normalized_path = normalize_native_path(path);
+
+    FILE *f = fopen(normalized_path.c_str(), "rb");
     if (f == nullptr)
     {
         io_buflen = 0;
@@ -354,6 +436,7 @@ inline bool read_file_contents_fixedlength(const char* path, char* io_buff, size
     io_buflen = result;
     return result == size;
 }
+// MODIFIED FEATURE END
 
 void sleep(int32_t ms);
 

@@ -281,7 +281,7 @@ void ogm::interpreter::fn::surface_save(
         throw MiscError("surface does not exist.");
     }
 
-    std::string filename = vfilename.castCoerce<std::string>();
+    std::string filename = frame.m_fs.resolve_file_path(vfilename.castCoerce<std::string>(), true);
 
     if (!save_texturepage_png(
         tp,
@@ -320,7 +320,7 @@ void ogm::interpreter::fn::surface_save_part(
     uint32_t w = vw.castCoerce<uint32_t>();
     uint32_t h = vh.castCoerce<uint32_t>();
 
-    std::string filename = vfilename.castCoerce<std::string>();
+    std::string filename = frame.m_fs.resolve_file_path(vfilename.castCoerce<std::string>(), true);
 
     if (!save_texturepage_png(
         tp,

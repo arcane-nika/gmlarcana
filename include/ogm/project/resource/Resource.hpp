@@ -113,16 +113,20 @@ extern const char* RESOURCE_TYPE_NAMES[NONE];
 extern const char* RESOURCE_TYPE_NAMES_ALT[NONE];
 extern const char* RESOURCE_TREE_NAMES[NONE];
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 template<typename ResourceType>
 std::function<std::unique_ptr<Resource>()>
 construct_resource(const std::string& path, const std::string& name)
 {
-    return [path, name]()
+    std::string normalized_path = normalize_native_path(path);
+
+    return [normalized_path, name]()
     {
-        return std::make_unique<ResourceType>
-            (path.c_str(), name.c_str());
+        return std::make_unique<ResourceType>(normalized_path.c_str(), name.c_str());
     };
 }
+// MODIFIED FEATURE END
 
 // is the resource name empty or <undefined>, etc.?
 bool resource_name_nil(const char* name);

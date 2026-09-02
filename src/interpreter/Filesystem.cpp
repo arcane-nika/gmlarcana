@@ -136,14 +136,7 @@ std::string Filesystem::resolve_file_path(const std::string& path, bool write)
 
     // BUG FIX (signature: annika marie schlögel)
     // prepare the file paths for POSIX based systems if necessary
-    std::string clean_path = path;
-    #ifndef _WIN32
-    for (char& c : clean_path)
-    {
-        if (c == '\\')
-            c = '/';
-    }
-    #endif
+    std::string clean_path = normalize_native_path(path);
     // BUG FIX END
 
     if (m_sandbox_impl == SandboxImpl::HOOK_WORKINGDIR) return clean_path;

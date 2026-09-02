@@ -7,6 +7,7 @@
 
 #include "ogm/ast/parse.h"
 #include "ogm/bytecode/bytecode.hpp"
+#include "ogm/sys/util_sys.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -1632,7 +1633,10 @@ void Debugger::cmd_set(const std::vector<std::string>& args)
 
             if (args.size() > 2)
             {
-                m_config.m_trace_path = args[2];
+                // MODIFIED FEATURE (signature: annika marie schlögel)
+                // upgraded to work with the new normalize_native_path function, which handles all paths correctly
+                m_config.m_trace_path = normalize_native_path(args[2]);
+                // MODIFIED FEATURE END
                 m_trace_ofstream = new std::ofstream(m_config.m_trace_path, std::ios::out);
                 if (!m_trace_ofstream->good())
                 {

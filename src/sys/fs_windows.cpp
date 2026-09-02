@@ -144,29 +144,34 @@ std::string path_drive(const std::string& path)
 #ifndef CPP_FILESYSTEM_ENABLED
 #define BUFFLEN 1024
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 // this is required to ensure double-null terminated paths.
-
 bool create_directory(const std::string& path)
 {
+    std::string normalized_path = normalize_native_path(path);
+
     char buff[BUFFLEN];
-    if (path.length() >= BUFFLEN - 2)
+    if (normalized_path.length() >= BUFFLEN - 2)
     {
       throw MiscError("path too long");
     }
     memset(buff, BUFFLEN, 0);
-    strcpy(buff, path.c_str());
+    strcpy(buff, normalized_path.c_str());
     return CreateDirectory(buff);
 }
 
 bool remove_directory(const std::string& path)
 {
+    std::string normalized_path = normalize_native_path(path);
+
     char buff[BUFFLEN];
-    if (path.length() >= BUFFLEN - 2)
+    if (normalized_path.length() >= BUFFLEN - 2)
     {
       throw MiscError("path too long");
     }
     memset(buff, 0, BUFFLEN);
-    strcpy(buff, path.c_str());
+    strcpy(buff, normalized_path.c_str());
     SHFILEOPSTRUCT shfo = {
         nullptr,
         FO_DELETE,
@@ -180,6 +185,7 @@ bool remove_directory(const std::string& path)
 
     return !SHFileOperation(&shfo);
 }
+// MODIFIED FEATURE END
 
 std::string get_temp_root()
 {
@@ -212,10 +218,12 @@ std::string create_temp_directory()
     throw MiscError("std::filesystem support required");
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 //https://stackoverflow.com/a/20847429
 std::vector<std::string> __glob(const std::string& _search_path)
 {
-   std::string search_path = native_path(_search_path);
+   std::string search_path = normalize_native_path(_search_path);
    std::vector<std::string> names;
    WIN32_FIND_DATA fd;
 
@@ -235,6 +243,7 @@ std::vector<std::string> __glob(const std::string& _search_path)
    }
    return names;
 }
+// MODIFIED FEATURE END
 
 
 // external declaration

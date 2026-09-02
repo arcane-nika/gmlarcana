@@ -349,12 +349,21 @@ void ogm::interpreter::fn::get_save_filename(VO out, V filter, V fname)
     #endif
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 void ogm::interpreter::fn::get_open_filename_ext(VO out, V filter, V fname, V dir, V caption)
 {
+    #if defined(NATIVE_FILE_DIALOG) || defined(_WIN32)
+    std::string initial_directory =
+        normalize_native_path(
+            dir.castCoerce<std::string>()
+        );
+    #endif
+
     #ifdef NATIVE_FILE_DIALOG
     std::string _filter = translate_filter(filter);
     char* outPath = nullptr;
-    NFD_OpenDialog(_filter.c_str(), dir.castCoerce<std::string>().c_str(), &outPath);
+    NFD_OpenDialog(_filter.c_str(), initial_directory.c_str(), &outPath);
     out = std::string(outPath);
     free(outPath);
     #elif defined(_WIN32)
@@ -362,7 +371,7 @@ void ogm::interpreter::fn::get_open_filename_ext(VO out, V filter, V fname, V di
         false,
         filter.castCoerce<std::string>().c_str(),
         fname.castCoerce<std::string>().c_str(),
-        dir.castCoerce<std::string>().c_str(),
+        initial_directory.c_str(),
         caption.castCoerce<std::string>().c_str()
     );
     #else
@@ -372,10 +381,17 @@ void ogm::interpreter::fn::get_open_filename_ext(VO out, V filter, V fname, V di
 
 void ogm::interpreter::fn::get_save_filename_ext(VO out, V filter, V fname,  V dir, V caption)
 {
+    #if defined(NATIVE_FILE_DIALOG) || defined(_WIN32)
+    std::string initial_directory =
+        normalize_native_path(
+            dir.castCoerce<std::string>()
+        );
+    #endif
+
     #ifdef NATIVE_FILE_DIALOG
     std::string _filter = translate_filter(filter);
     char* outPath = nullptr;
-    NFD_SaveDialog(_filter.c_str(), dir.castCoerce<std::string>().c_str(), &outPath);
+    NFD_SaveDialog(_filter.c_str(), initial_directory.c_str(), &outPath);
     out = std::string(outPath);
     free(outPath);
     #elif defined(_WIN32)
@@ -383,13 +399,14 @@ void ogm::interpreter::fn::get_save_filename_ext(VO out, V filter, V fname,  V d
         true,
         filter.castCoerce<std::string>().c_str(),
         fname.castCoerce<std::string>().c_str(),
-        dir.castCoerce<std::string>().c_str(),
+        initial_directory.c_str(),
         caption.castCoerce<std::string>().c_str()
     );
     #else
     out = "";
     #endif
 }
+// MODIFIED FEATURE END
 
 // NEW FEATURE (signature: annika marie schlögel)
 // some filesystem fuckery, cross-compatible with win/posix paths
@@ -431,18 +448,27 @@ void ogm::interpreter::fn::filename_drive(VO out, V fname)
     out = path_drive(fname.castCoerce<std::string>());
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 void ogm::interpreter::fn::file_delete(VO out, V fname)
 {
-    out = delete_file(fname.castCoerce<std::string>());
+    std::string path = frame.m_fs.resolve_file_path(fname.castCoerce<std::string>(), true);
+    out = delete_file(path);
 }
 
 void ogm::interpreter::fn::file_copy(VO out, V source, V destination)
 {
-    out = copy_file(source.castCoerce<std::string>(), destination.castCoerce<std::string>());
+    std::string source_path = frame.m_fs.resolve_file_path(source.castCoerce<std::string>(), false);
+    std::string dest_path = frame.m_fs.resolve_file_path(destination.castCoerce<std::string>(), true);
+    out = copy_file(source_path, dest_path);
 }
 
 void ogm::interpreter::fn::file_rename(VO out, V source, V destination)
 {
-    out = rename_file(source.castCoerce<std::string>(), destination.castCoerce<std::string>());
+    std::string source_path = frame.m_fs.resolve_file_path(source.castCoerce<std::string>(), true);
+    std::string dest_path = frame.m_fs.resolve_file_path(destination.castCoerce<std::string>(), true);
+    out = rename_file(source_path, dest_path);
 }
+// MODIFIED FEATURE END
+
 // NEW FEATURE END

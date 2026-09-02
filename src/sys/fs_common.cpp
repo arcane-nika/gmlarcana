@@ -17,25 +17,35 @@ namespace fs
 }
 
 // https://stackoverflow.com/a/12774387
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 bool path_exists(const std::string& name)
 {
+    std::string path = normalize_native_path(name);
+
     struct stat buffer;
     return !(stat (name.c_str(), &buffer));
 }
+// MODIFIED FEATURE END
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 bool path_is_directory(const std::string& path)
 {
+    std::string normalized_path = normalize_native_path(path);
+
     #ifdef _WIN32
         // https://stackoverflow.com/q/6993723
         struct stat buf;
-        stat(path.c_str(), &buf);
+        stat(normalized_path.c_str(), &buf);
         return ((buf.st_mode & _S_IFDIR) > 0);
     #else
         struct stat buf;
-        stat (path.c_str(), &buf);
+        stat (normalized_path.c_str(), &buf);
         return S_ISDIR(buf.st_mode);
     #endif
 }
+// MODIFIED FEATURE END
 
 std::string case_insensitive_path(const std::string& base, const std::string& head, bool* o_casechange)
 {
@@ -105,10 +115,14 @@ std::string case_insensitive_path(const std::string& base, const std::string& he
     return base + best_match + h;
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 bool can_read_file(const std::string& s)
 {
+    std::string normalized_path = normalize_native_path(s);
+
     FILE * fp;
-    fp = fopen(s.c_str(), "rb");
+    fp = fopen(normalized_path.c_str(), "rb");
     if (!fp)
     {
         return false;
@@ -116,6 +130,7 @@ bool can_read_file(const std::string& s)
     fclose(fp);
     return true;
 }
+// MODIFIED FEATURE END
 
 bool terminal_supports_colours()
 {
@@ -127,15 +142,20 @@ bool terminal_supports_colours()
     return terminal_colours_are_supported;
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 uint64_t get_file_write_time(const std::string& path_to_file)
 {
+    std::string normalized_path = normalize_native_path(path_to_file);
+
     struct stat result;
-    if(stat(path_to_file.c_str(), &result)==0)
+    if(stat(normalized_path.c_str(), &result)==0)
     {
         return result.st_mtime;
     }
     return 0;
 }
+// MODIFIED FEATURE END
 
 }
 

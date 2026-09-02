@@ -307,6 +307,11 @@ int umain (int argn, char** argv)
   ogm::interpreter::staticExecutor.m_frame.m_config.m_cache = cache;
   ogm::interpreter::staticExecutor.m_frame.m_config.m_parallel_compile = !single_thread_compile;
 
+  // NEW FEATURE (signature: annika marie schlögel)
+  // normalize the filename to a native path, so that it works on all platforms.
+  filename = normalize_native_path(filename);
+  // NEW FEATURE END
+
   #ifdef EMSCRIPTEN
   if (!can_read_file(filename))
   {

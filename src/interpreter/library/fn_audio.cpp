@@ -362,7 +362,7 @@ using namespace ogm::interpreter::audio;
 // audio importer/streamer
 void ogm::interpreter::fn::audio_create_stream(VO out, V vfilename)
 {
-    const std::string filename = vfilename.castCoerce<std::string>();
+    const std::string filename = frame.m_fs.resolve_file_path(vfilename.castCoerce<std::string>(), false);
 
     asset_index_t asset_index;
 

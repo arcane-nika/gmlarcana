@@ -135,11 +135,13 @@ std::string path_drive(const std::string&)
 // NEW FEATURE (signature: annika marie schlögel)
 std::vector<std::string> __glob(const std::string& search_path)
 {
+    std::string normalized_search_path = normalize_native_path(search_path);
+
     glob_t glob_result;
 
     std::vector<std::string> out;
 
-    if (glob(search_path.c_str(), GLOB_TILDE, nullptr, &glob_result) == 0)
+    if (glob(normalized_search_path.c_str(), GLOB_TILDE, nullptr, &glob_result) == 0)
     {
         for (size_t i = 0; i < glob_result.gl_pathc; ++i)
         {

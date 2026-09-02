@@ -10,17 +10,19 @@
 
 namespace ogm {
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 bool create_directory(const std::string& path)
 {
     return std::filesystem::create_directory(
-        std::filesystem::path(path)
+        std::filesystem::path(normalize_native_path(path))
     );
 }
 
 bool remove_directory(const std::string& path)
 {
     return std::filesystem::remove_all(
-        std::filesystem::path(path)
+        std::filesystem::path(normalize_native_path(path))
     );
 }
 
@@ -30,7 +32,7 @@ bool delete_file(const std::string& path)
     try
     {
         return std::filesystem::remove(
-            std::filesystem::path(path)
+            std::filesystem::path(normalize_native_path(path))
         );
     }
     catch (...)
@@ -47,8 +49,8 @@ bool copy_file(
     try
     {
         return std::filesystem::copy_file(
-            std::filesystem::path(source),
-            std::filesystem::path(destination),
+            std::filesystem::path(normalize_native_path(source)),
+            std::filesystem::path(normalize_native_path(destination)),
             std::filesystem::copy_options::overwrite_existing
         );
     }
@@ -66,8 +68,8 @@ bool rename_file(
     try
     {
         std::filesystem::rename(
-            std::filesystem::path(source),
-            std::filesystem::path(destination)
+            std::filesystem::path(normalize_native_path(source)),
+            std::filesystem::path(normalize_native_path(destination))
         );
 
         return true;
@@ -78,6 +80,7 @@ bool rename_file(
     }
 }
 // NEW FEATURE END
+// MODIFIED FEATURE END
 
 std::string get_temp_root()
 {
@@ -109,10 +112,14 @@ std::string create_temp_directory()
     }
 }
 
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// upgraded to work with the new normalize_native_path function, which handles all paths correctly
 void list_paths(const std::string& base, std::vector<std::string>& out)
 {
-    if (!path_exists(base)) return;
-    for (auto& p : std::filesystem::directory_iterator(base))
+    std::string normalized_base = normalize_native_path(base);
+
+    if (!path_exists(normalized_base)) return;
+    for (auto& p : std::filesystem::directory_iterator(normalized_base))
     {
         out.emplace_back(p.path().string());
     }
@@ -120,12 +127,15 @@ void list_paths(const std::string& base, std::vector<std::string>& out)
 
 void list_paths_recursive(const std::string& base, std::vector<std::string>& out)
 {
-    if (!path_exists(base)) return;
+    std::string normalized_base = normalize_native_path(base);
+
+    if (!path_exists(normalized_base)) return;
     for (auto& p : std::filesystem::recursive_directory_iterator(base))
     {
         out.emplace_back(p.path().string());
     }
 }
+// MODIFIED FEATURE END
 
 }
 
