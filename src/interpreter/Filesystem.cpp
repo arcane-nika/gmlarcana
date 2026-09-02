@@ -116,8 +116,13 @@ bool file_find_attributes_match(
         | 2   // fa_hidden
         | 4   // fa_sysfile
         | 8   // fa_volumeid
-        | 16  // fa_directory
-        | 32; // fa_archive
+        | 16;  // fa_directory
+
+        // | 32; // fa_archive, 
+        // commented out as Windows and/or Wine
+        // often just assigns this to normally copied/created files
+        // but GameMaker must return normal files even when the
+        // requested attribute mask is 0.
 
     const DWORD rejected_attributes =
         actual_attributes
