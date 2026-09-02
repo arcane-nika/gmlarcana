@@ -169,38 +169,108 @@ namespace
     }
 }
 
-TextureView* TextureStore::bind_asset_copy_texture(ImageDescriptor id, TextureView* tv, geometry::AABB<uint32_t> from)
+// REWRITTEN FEATURE (signature: annika marie schlögel)
+TextureView* TextureStore::bind_asset_copy_texture(
+    ImageDescriptor id,
+    TextureView* tv,
+    geometry::AABB<uint32_t> from
+)
 {
-    // create a texture page and view for the asset.
-    surface_id_t dst = create_surface(
-      from.diagonal()
-    );
+    if (!tv || !tv->m_tpage)
+    {
+        return nullptr;
+    }
+
+    TexturePage* source_page = tv->m_tpage;
+
+    // Make sure the source texture actually exists before attaching
+    // a framebuffer to it.
+    if (!source_page->cache())
+    {
+        return nullptr;
+    }
+
+    // Static sprite texture pages normally don't need a framebuffer.
+    // Blitting does, so create one before binding GL_READ_FRAMEBUFFER.
+    if (!source_page->m_gl_framebuffer)
+    {
+        if (attach_framebuffer(
+            source_page->m_gl_framebuffer,
+            source_page->m_gl_tex
+        ))
+        {
+            return nullptr;
+        }
+    }
+
+    // create_surface() gives us a GPU-backed page + TextureView.
+    surface_id_t dst = create_surface(from.diagonal());
+
+    if (dst < 0)
+    {
+        return nullptr;
+    }
 
     TextureView* view = get_surface_texture_view(dst);
-    TexturePage* page = view->m_tpage;
+    TexturePage* page = get_surface(dst);
 
-    // copy source texture view to new asset
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, tv->m_tpage->m_gl_framebuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, page->m_gl_framebuffer);
-    glBlitFramebuffer(
-      tv->u_global_i(from.left()),
-      tv->v_global_i(from.top()),
-      tv->u_global_i(from.right()),
-      tv->v_global_i(from.bottom()),
-      view->u_global_i(0),
-      view->v_global_i(0),
-      view->u_global_i(1),
-      view->v_global_i(1),
-      GL_COLOR_BUFFER_BIT,
-      GL_NEAREST
+    if (!view || !page)
+    {
+        return nullptr;
+    }
+
+    // Copy source texture region to the new texture page.
+    glBindFramebuffer(
+        GL_READ_FRAMEBUFFER,
+        source_page->m_gl_framebuffer
     );
 
-    // Return to previous framebuffer.
-    glBindFramebuffer(GL_FRAMEBUFFER, g_gl_framebuffer);
+    glBindFramebuffer(
+        GL_DRAW_FRAMEBUFFER,
+        page->m_gl_framebuffer
+    );
 
-    // TODO: delete framebuffer for new asset's tpage?
+    glBlitFramebuffer(
+        tv->u_global_i(from.left()),
+        tv->v_global_i(from.top()),
+        tv->u_global_i(from.right()),
+        tv->v_global_i(from.bottom()),
+
+        view->u_global_i(0),
+        view->v_global_i(0),
+        view->u_global_i(1),
+        view->v_global_i(1),
+
+        GL_COLOR_BUFFER_BIT,
+        GL_NEAREST
+    );
+
+    glBindFramebuffer(
+        GL_FRAMEBUFFER,
+        g_gl_framebuffer
+    );
+
+    /*
+        create_surface() temporarily registered this TextureView as a
+        surface. But this texture is not a GML surface; it belongs to
+        an asset descriptor.
+
+        Transfer ownership from m_surface_map to m_descriptor_map.
+        create_surface() always appends the new surface, so dst is the
+        last entry.
+    */
+    ogm_assert(
+        static_cast<size_t>(dst) + 1 == m_surface_map.size()
+    );
+
+    m_surface_map.pop_back();
+
+    // THIS IS THE MISSING PART IN THE OLD IMPLEMENTATION.
+    m_descriptor_map[id] = view;
+
     return view;
 }
+// REWRITTEN FEATURE END
 
 TexturePage* TextureStore::arrange_tpage(const std::vector<TextureView*>& sources, std::vector<ogm::geometry::AABB<real_t>>& outUVs, bool smart)
 {
@@ -388,31 +458,66 @@ uint32_t TextureStore::get_texture_pixel(TexturePage* tp, ogm::geometry::Vector<
 void TextureStore::free_texture(ImageDescriptor id)
 {
     auto desc_it = m_descriptor_map.find(id);
+
     if (desc_it == m_descriptor_map.end())
     {
         return;
     }
 
     TextureView* view = desc_it->second;
-    TexturePage* page = view->m_tpage;
+    TexturePage* page = view ? view->m_tpage : nullptr;
 
-    if (page == nullptr)
+    // Descriptor no longer exists from this point onward.
+    m_descriptor_map.erase(desc_it);
+
+    delete view;
+
+    if (!page)
     {
         return;
     }
 
-    // Remove descriptor first so nobody can retrieve it anymore.
-    m_descriptor_map.erase(desc_it);
+    /*
+        A TexturePage may contain several asset frames.
+        Do not destroy it while another descriptor still references it.
+    */
+    for (const auto& pair : m_descriptor_map)
+    {
+        TextureView* other_view = pair.second;
 
-    // Free the TextureView.
-    delete view;
+        if (other_view && other_view->m_tpage == page)
+        {
+            return;
+        }
+    }
 
-    // Remove and destroy the TexturePage.
-    auto page_it = std::find(m_pages.begin(), m_pages.end(), page);
+    /*
+        A page may also still belong to a GML surface.
+    */
+    for (const auto& surface : m_surface_map)
+    {
+        if (
+            surface.first == page ||
+            (surface.second && surface.second->m_tpage == page)
+        )
+        {
+            return;
+        }
+    }
+
+    // Nobody references the page anymore.
+    auto page_it = std::find(
+        m_pages.begin(),
+        m_pages.end(),
+        page
+    );
+
     if (page_it != m_pages.end())
     {
         delete *page_it;
-        m_pages.erase(page_it);
+
+        // Keep the vector stable, as free_surface() already does.
+        *page_it = nullptr;
     }
 }
 // NEW FEATURE END
@@ -583,25 +688,19 @@ TexturePage* TextureStore::create_tpage_from_image(asset::Image& image)
 // NEW CODE
 TextureView* TextureStore::get_texture(ImageDescriptor id)
 {
-    /*std::cerr << "[DEBUG] get_texture ENTER"
-              << " asset_index=" << id.m_asset_index
-              << " image_index=" << id.m_image_index
-              << std::endl;*/
-
     auto result = m_descriptor_map.find(id);
-
-    //std::cerr << "[DEBUG] get_texture AFTER find" << std::endl;
 
     if (result == m_descriptor_map.end())
     {
-        //std::cerr << "[DEBUG] get_texture: NOT FOUND" << std::endl;
-        throw MiscError("No texture found for the given asset");
+        throw MiscError(
+            "No texture found for asset "
+            + std::to_string(id.m_asset_index)
+            + ", subimage "
+            + std::to_string(id.m_image_index)
+        );
     }
-    else
-    {
-        //std::cerr << "[DEBUG] get_texture: FOUND" << std::endl;
-        return result->second;
-    }
+
+    return result->second;
 }
 
 // DEBUG CODE END
