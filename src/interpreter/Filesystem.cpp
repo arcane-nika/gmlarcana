@@ -4,11 +4,150 @@
 
 #ifdef _WIN32
 #include <shlwapi.h>
+#include <windows.h>
 #endif
 
 #include <iostream>
 #include <filesystem>
 #include <optional>
+#include <cctype>
+#include <unordered_set>
+
+// NEW FEATURE (signature: annika marie schlögel)
+namespace
+{
+constexpr int FILE_FIND_ATTRIBUTE_DIRECTORY = 16;
+
+char file_find_fold_case(char c)
+{
+    #ifdef _WIN32
+    return static_cast<char>(
+        std::tolower(static_cast<unsigned char>(c))
+    );
+    #else
+    return c;
+    #endif
+}
+
+std::string file_find_match_key(std::string value)
+{
+    for (char& c : value)
+    {
+        c = file_find_fold_case(c);
+    }
+
+    return value;
+}
+
+bool file_find_wildcard_match(
+    const std::string& pattern,
+    const std::string& value
+)
+{
+    size_t pattern_index = 0;
+    size_t value_index = 0;
+    size_t last_star = std::string::npos;
+    size_t star_value_index = 0;
+
+    while (value_index < value.size())
+    {
+        if (
+            pattern_index < pattern.size()
+            && (
+                pattern[pattern_index] == '?'
+                || file_find_fold_case(pattern[pattern_index])
+                    == file_find_fold_case(value[value_index])
+            )
+        )
+        {
+            ++pattern_index;
+            ++value_index;
+        }
+        else if (
+            pattern_index < pattern.size()
+            && pattern[pattern_index] == '*'
+        )
+        {
+            last_star = pattern_index++;
+            star_value_index = value_index;
+        }
+        else if (last_star != std::string::npos)
+        {
+            pattern_index = last_star + 1;
+            value_index = ++star_value_index;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    while (
+        pattern_index < pattern.size()
+        && pattern[pattern_index] == '*'
+    )
+    {
+        ++pattern_index;
+    }
+
+    return pattern_index == pattern.size();
+}
+
+bool file_find_attributes_match(
+    const std::filesystem::directory_entry& entry,
+    int requested_attributes
+)
+{
+    #ifdef _WIN32
+    const DWORD actual_attributes =
+        GetFileAttributesA(
+            entry.path().string().c_str()
+        );
+
+    if (actual_attributes == INVALID_FILE_ATTRIBUTES)
+    {
+        return false;
+    }
+
+    // GameMaker fa_* constants use the classic
+    // DOS/Win32 attribute bits 1 through 32.
+    constexpr DWORD FILTERABLE_ATTRIBUTES =
+        1   // fa_readonly
+        | 2   // fa_hidden
+        | 4   // fa_sysfile
+        | 8   // fa_volumeid
+        | 16  // fa_directory
+        | 32; // fa_archive
+
+    const DWORD rejected_attributes =
+        actual_attributes
+        & FILTERABLE_ATTRIBUTES
+        & ~static_cast<DWORD>(requested_attributes);
+
+    return rejected_attributes == 0;
+
+    #else
+
+    // The attribute flags are documented as Windows-only.
+    // We still retain fa_directory on POSIX for projects
+    // shared between the two targets.
+    std::error_code error;
+
+    if (entry.is_directory(error))
+    {
+        return !error
+            && (
+                requested_attributes
+                & FILE_FIND_ATTRIBUTE_DIRECTORY
+            );
+    }
+
+    return !error && entry.is_regular_file(error);
+
+    #endif
+}
+}
+// NEW FEATURE END
 
 namespace ogm { namespace interpreter
 {
@@ -217,7 +356,8 @@ std::string Filesystem::file_find_next()
     return m_file_search->matches[m_file_search->index];
 }
 
-// TODO: VISIT LATER, NOT FULLY IMPLEMENTED
+// REWRITTEN FEATURE (signature: annika marie schlögel)
+// now supports proper platform-aware file handling with wildcards
 std::string Filesystem::file_find_first(const std::string& pattern, int attributes)
 {
     file_find_close();
@@ -225,51 +365,78 @@ std::string Filesystem::file_find_first(const std::string& pattern, int attribut
     m_file_search.emplace();
     m_file_search->index = 0;
 
-    // PROBABLE BUG FIX (signature: annika marie schlögel)
+    const std::string clean_pattern = normalize_native_path(pattern);
 
-    // LEGACY CODE
-    //std::string resolved = resolve_file_path(pattern, false);
+    const std::filesystem::path search_path(clean_pattern);
+    const std::string wildcard = search_path.filename().string();
 
-    // NEW CODE (changing write mode to true, basically every imported api/resource would not want the project dir as which the false writing flag is basically redirecting to) NEVERMIND
-    std::string resolved = resolve_file_path(pattern, false);
-
-    // PROBABLE BUG FIX END
-
-    // DEBUG PRINT (signature: annika marie schlögel)
-    /*std::cout << "pattern   = " << pattern << '\n';
-    std::cout << "resolved  = " << resolved << '\n';
-    std::cout << "working   = " << m_working_directory << '\n';
-    std::cout << "included  = " << m_included_directory << '\n';*/
-    // DEBUG PRINT END
-
-    //std::cout << "ENTERING search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
-    std::filesystem::path search_path(resolved);
-    //std::cout << "SUCCESSFUL EXECUTION search_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
-
-    //std::cout << "ENTERING directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
-    std::filesystem::path directory = search_path.parent_path();
-    //std::cout << "SUCCESSFUL EXECUTION directory = search_path.parent_path\n"; // DEBUG PRINT (signature: annika marie schlögel)
-
-    //std::cout << "ENTERING wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
-    std::string wildcard = search_path.filename().string();
-    //std::cout << "SUCCESSFUL EXECUTION wildcard = search_path...\n"; // DEBUG PRINT (signature: annika marie schlögel)
-
-    for (const auto& entry : std::filesystem::directory_iterator(directory))
+    if (wildcard.empty())
     {
-        if (wildcard != "*")
-            continue;
+        m_file_search.reset();
+        return "";
+    }
 
-        bool accept = true;
+    std::filesystem::path requested_directory = search_path.parent_path();
 
-        if (attributes & 16)
-            accept &= entry.is_directory();
+    if (requested_directory.empty())
+    {
+        requested_directory = ".";
+    }
 
-        if (!accept)
-            continue;
+    std::vector<std::filesystem::path> directories;
 
-        m_file_search->matches.push_back(
-            entry.path().filename().string()
-        );
+    bool absolute = false;
+
+    #if defined(_WIN32)
+    absolute = !PathIsRelative(requested_directory.string().c_str());
+    #else
+    absolute = requested_directory.is_absolute();
+    #endif
+
+    if (absolute)
+    {
+        directories.emplace_back(resolve_file_path(requested_directory.string(), false));
+    }
+    else
+    {
+        // GameMaker read order:
+        // save/working area first, then included files.
+        directories.emplace_back(case_insensitive_native_path(m_working_directory, requested_directory.string()));
+
+        if (!m_included_directory.empty())
+        {
+            directories.emplace_back(case_insensitive_native_path(m_included_directory, requested_directory.string()));
+        }
+    }
+
+    std::unordered_set<std::string> seen_names;
+
+    for (const std::filesystem::path& directory : directories)
+    {
+        std::error_code error;
+
+        std::filesystem::directory_iterator iterator(directory, std::filesystem::directory_options::skip_permission_denied, error);
+
+        const std::filesystem::directory_iterator end;
+
+        while (!error && iterator != end)
+        {
+            const std::filesystem::directory_entry& entry = *iterator;
+
+            const std::string name = entry.path().filename().string();
+
+            if (file_find_wildcard_match(wildcard, name))
+            {
+                const std::string match_key = file_find_match_key(name);
+
+                if (file_find_attributes_match(entry, attributes) && seen_names.insert(match_key).second)
+                {
+                    m_file_search->matches.push_back(name);
+                }
+            }
+
+            iterator.increment(error);
+        }
     }
 
     if (m_file_search->matches.empty())
@@ -280,6 +447,6 @@ std::string Filesystem::file_find_first(const std::string& pattern, int attribut
 
     return m_file_search->matches.front();
 }
-// NEW FEATURE END
+// REWRITTEN FEATURE END
 
 }}

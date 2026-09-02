@@ -3,6 +3,7 @@
 // Values match the Win32 FILE_ATTRIBUTE_* bitmask
 // for GameMaker compatibility.
 
+CONST(fa_none,      0) // NEW FEATURE (signature: annika marie schlögel)
 CONST(fa_readonly,  1)
 CONST(fa_hidden,    2)
 CONST(fa_sysfile,   4)

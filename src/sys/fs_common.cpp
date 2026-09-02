@@ -24,7 +24,7 @@ bool path_exists(const std::string& name)
     std::string path = normalize_native_path(name);
 
     struct stat buffer;
-    return !(stat (name.c_str(), &buffer));
+    return !(stat (path.c_str(), &buffer));
 }
 // MODIFIED FEATURE END
 

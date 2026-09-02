@@ -118,10 +118,14 @@ void list_paths(const std::string& base, std::vector<std::string>& out)
 {
     std::string normalized_base = normalize_native_path(base);
 
-    if (!path_exists(normalized_base)) return;
-    for (auto& p : std::filesystem::directory_iterator(normalized_base))
+    std::error_code error;
+    std::filesystem::directory_iterator iterator(normalized_base, std::filesystem::directory_options::skip_permission_denied, error);
+    const std::filesystem::directory_iterator end;
+
+    while (!error && iterator != end)
     {
-        out.emplace_back(p.path().string());
+        out.emplace_back(iterator->path().string());
+        iterator.increment(error);
     }
 }
 
@@ -129,10 +133,14 @@ void list_paths_recursive(const std::string& base, std::vector<std::string>& out
 {
     std::string normalized_base = normalize_native_path(base);
 
-    if (!path_exists(normalized_base)) return;
-    for (auto& p : std::filesystem::recursive_directory_iterator(base))
+    std::error_code error;
+    std::filesystem::recursive_directory_iterator iterator(normalized_base, std::filesystem::directory_options::skip_permission_denied, error);
+    const std::filesystem::recursive_directory_iterator end;
+
+    while (!error && iterator != end)
     {
-        out.emplace_back(p.path().string());
+        out.emplace_back(iterator->path().string());
+        iterator.increment(error);
     }
 }
 // MODIFIED FEATURE END

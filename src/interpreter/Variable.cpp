@@ -212,6 +212,15 @@ bool Variable::operator>=(const Variable& other) const
                 default:
                     return false;
             }
+        // NEW FEATURE (signature: annika marie schlögel)
+        // included ordered string comparison as it is a feature in gml 1.4
+        case VT_STRING:
+            if (other.m_tag == VT_STRING)
+            {
+                return string_view() >= other.string_view();
+            }
+            return false;
+        // NEW FEATURE END
         default:
             throw MiscError("Cannot order non-numerical types");
     }
@@ -261,6 +270,15 @@ bool Variable::operator>(const Variable& other) const
                 default:
                     return false;
             }
+        // NEW FEATURE (signature: annika marie schlögel)
+        // included ordered string comparison as it is a feature in gml 1.4
+        case VT_STRING:
+            if (other.m_tag == VT_STRING)
+            {
+                return string_view() > other.string_view();
+            }
+            return false;
+        // NEW FEATURE END
         default:
             throw MiscError("Cannot order non-numerical types");
     }
@@ -310,6 +328,15 @@ bool Variable::operator<=(const Variable& other) const
                 default:
                     return false;
             }
+        // NEW FEATURE (signature: annika marie schlögel)
+        // included ordered string comparison as it is a feature in gml 1.4
+        case VT_STRING:
+            if (other.m_tag == VT_STRING)
+            {
+                return string_view() <= other.string_view();
+            }
+            return false;
+        // NEW FEATURE END
         default:
             throw MiscError("Cannot order non-numerical types");
     }
@@ -359,6 +386,15 @@ bool Variable::operator<(const Variable& other) const
                 default:
                     return false;
             }
+        // NEW FEATURE (signature: annika marie schlögel)
+        // included ordered string comparison as it is a feature in gml 1.4
+        case VT_STRING:
+            if (other.m_tag == VT_STRING)
+            {
+                return string_view() < other.string_view();
+            }
+            return false;
+        // NEW FEATURE END
         default:
             throw MiscError("Cannot order non-numerical types");
     }
