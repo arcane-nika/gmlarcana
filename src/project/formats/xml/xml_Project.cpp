@@ -121,8 +121,14 @@ void Project::read_resource_tree_xml(ResourceList* list, pugi::xml_node& xml, Re
                         path <<
                         "\"\n  This is time-consuming and should be corrected.\n";
                 }
+
+                std::string shader_type;
+                if (t == SHADER)
+                {
+                    shader_type = node.attribute("type").as_string();
+                }
                 
-                add_resource_from_path(t, path.c_str(), list, path_leaf(value));
+                add_resource_from_path(t, path.c_str(), list, path_leaf(value), shader_type);
             }
         }
     }

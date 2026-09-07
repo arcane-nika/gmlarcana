@@ -20,6 +20,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <iostream>
 
 using namespace ogm::interpreter;
 using namespace ogm::interpreter::fn;
@@ -99,14 +100,26 @@ void ogm::interpreter::fn::ogm_display_bind_assets(VO out)
                 [background]() { return &background->m_image; }
             );
         }
+        // MODIFIED FEATURE (signature: annika marie schlögel)
+        // included shader language as a parameter for ANGLE shader converter to read
         else if (AssetShader* shader = dynamic_cast<AssetShader*>(asset))
         {
             frame.m_display->bind_and_compile_shader(
                 i,
+                shader->m_language,
                 shader->m_vertex_source,
                 shader->m_pixel_source
             );
+
+            // TEMPORARY DEBUG PRINT
+            std::cout
+                << "[shader] asset " << i
+                << " language "
+                << static_cast<int>(shader->m_language)
+                << std::endl;
+            // TEMPORARY DEBUG PRINT END
         }
+        // MODIFIED FEATURE END
     }
 }
 

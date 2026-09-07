@@ -13,6 +13,7 @@
 #include "ogm/common/util.hpp"
 #include "ogm/common/error.hpp"
 #include "ogm/asset/Config.hpp"
+#include "ogm/asset/ShaderLanguage.hpp"
 #include "ogm/ast/parse.h"
 
 #include <iostream>
@@ -223,7 +224,9 @@ ResourceList& Project::asset_tree(ResourceType type)
     return *m_tree.subdirectory(RESOURCE_TREE_NAMES[type]);
 }
 
-void Project::add_resource_from_path(ResourceType type, const std::string& path, ResourceList* list, std::string name)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// included shader_type parameter for ANGLE shader converter to read
+void Project::add_resource_from_path(ResourceType type, const std::string& path, ResourceList* list, std::string name, std::string shader_type)
 {
     // we can't handle these yet.
     if (type == PATH || type == TIMELINE)
@@ -270,8 +273,24 @@ void Project::add_resource_from_path(ResourceType type, const std::string& path,
         fn = construct_resource<ResourceSound>(path, name);
         break;
     case SHADER:
-        fn = construct_resource<ResourceShader>(path, name);
+    {
+        asset::ShaderLanguage language =
+            asset::shader_language_from_string(shader_type);
+
+        std::string normalized_path =
+            normalize_native_path(path);
+
+        fn = [normalized_path, name, language]()
+        {
+            return std::make_unique<ResourceShader>(
+                normalized_path.c_str(),
+                name.c_str(),
+                language
+            );
+        };
+
         break;
+    }
     case FONT:
         fn = construct_resource<ResourceFont>(path, name);
         break;
@@ -287,6 +306,7 @@ void Project::add_resource_from_path(ResourceType type, const std::string& path,
     );
     m_resources.emplace(name, std::move(rte));
 }
+// MODIFIED FEATURE END
 
 void Project::scan_resource_directory(const std::string& resource_path, ResourceType default_type)
 {

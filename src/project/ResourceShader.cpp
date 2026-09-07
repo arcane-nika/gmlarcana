@@ -1,6 +1,7 @@
 #include "ogm/project/resource/ResourceShader.hpp"
 
 #include "ogm/bytecode/bytecode.hpp"
+#include "ogm/asset/ShaderLanguage.hpp"
 #include "ogm/ast/parse.h"
 #include "ogm/common/util.hpp"
 #include "ogm/common/error.hpp"
@@ -10,11 +11,15 @@
 
 namespace ogm { namespace project {
 
-ResourceShader::ResourceShader(const char* path, const char* name)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// included shader language as a parameter for ANGLE shader converter to read
+ResourceShader::ResourceShader(const char* path, const char* name, asset::ShaderLanguage language)
     : Resource(name)
     , m_path(path)
+    , m_language(language)
 {
 }
+// MODIFIED FEATURE END
 
 void ResourceShader::load_file()
 {
@@ -54,6 +59,12 @@ void ResourceShader::precompile(bytecode::ProjectAccumulator& acc)
 {
     if (mark_progress(PRECOMPILED)) return;
     asset::AssetShader* sh = acc.m_assets->add_asset<asset::AssetShader>(m_name.c_str());
+
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+    // included shader language as a parameter for ANGLE shader converter to read
+    sh->m_language = m_language;
+    // MODIFIED FEATURE END
+
     std::vector<std::string> contents;
     split(contents, m_source, "#################");
     if (contents.size() < 2)

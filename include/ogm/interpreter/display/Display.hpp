@@ -310,8 +310,11 @@ public:
     template<bool write>
     void serialize(typename state_stream<write>::state_stream_t& s);
     
-    void bind_and_compile_shader(asset_index_t, const std::string& vertex_source, const std::string& fragment_source);
-    
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+    // included shader language as a parameter for ANGLE shader converter to read
+    void bind_and_compile_shader(asset_index_t, asset::ShaderLanguage, const std::string& vertex_source, const std::string& fragment_source);
+    // MODIFIED FEATURE END
+
     void use_shader(asset_index_t);
     
     int32_t shader_get_uniform_id(asset_index_t, const std::string& handle);

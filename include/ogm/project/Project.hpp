@@ -75,7 +75,10 @@ public:
     // if the type NONE is given, ambiguous resources will be skipped.
     void scan_resource_directory(const std::string& path, ResourceType default_type=NONE);
     
-    void add_resource_from_path(ResourceType, const std::string& path, ResourceList* list=nullptr, std::string name="");
+    // MODFIED FEATURE (signature: annika marie schlögel)
+    // included shader_type parameter for ANGLE shader converter to read
+    void add_resource_from_path(ResourceType, const std::string& path, ResourceList* list=nullptr, std::string name="", std::string shader_type="");
+    // MODIFIED FEATURE END
 
     // type-specific resource tree.
     // (this is a top-level folder.)

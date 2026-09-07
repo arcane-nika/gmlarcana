@@ -8,6 +8,8 @@
 #include "ogm/common/types.hpp"
 #include "Share.hpp"
 
+#include "ogm/asset/ShaderLanguage.hpp"
+
 namespace ogm::interpreter
 {
     static real_t g_key_last = -1;
@@ -559,10 +561,18 @@ namespace
         glBindAttribLocation(program, ATTR_LOC_NORMAL, "in_Normal");
     }
 
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+    // included shader language as a parameter for ANGLE shader converter to read
+
     // returns true on failure.
     // combines source with default source header.
-    bool compile_shader(std::string vertex_source, std::string fragment_source, uint32_t& out_shader)
+    bool compile_shader(asset::ShaderLanguage language,std::string vertex_source, std::string fragment_source, uint32_t& out_shader)
     {
+        // Translation will be selected here later.
+        // For now, preserve the current behavior.
+        (void)language;
+        // rest unchanged
+
         int success;
 
         // adjust source
@@ -621,6 +631,7 @@ namespace
         // success.
         return false;
     }
+    // MODIFIED FEATURE END
 
     // fills the given pointer with 3 floats
     inline void floats3(float* dst, coord_t x=0, coord_t y=0, coord_t z=0)
@@ -912,11 +923,16 @@ bool Display::start(uint32_t width, uint32_t height, const char* caption, bool v
     std::cout << glGetString(GL_VERSION) << std::endl;
     std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
+    // MODIFIED FEATURE (signature: annika marie schlögel)
+    // included shader language as a parameter for ANGLE shader converter to read
+    // this is default shader compilation, so no ANGLE but the parameter still exists so we have to set it
+
     // compile shaders
-    if (compile_shader("", "", g_shader_program))
+    if (compile_shader(asset::ShaderLanguage::GLSL, "", "", g_shader_program))
     {
         return false;
     }
+    // MODIFIED FEATURE END
 
     glUseProgram(g_shader_program);
 
@@ -3431,14 +3447,17 @@ void Display::serialize<false>(typename state_stream<false>::state_stream_t& s);
 template
 void Display::serialize<true>(typename state_stream<true>::state_stream_t& s);
 
-void Display::bind_and_compile_shader(asset_index_t asset_index, const std::string& vertex_source, const std::string& fragment_source)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// included shader language as a parameter for ANGLE shader converter to read
+void Display::bind_and_compile_shader(asset_index_t asset_index, asset::ShaderLanguage language, const std::string& vertex_source, const std::string& fragment_source)
 {
     uint32_t shader;
-    if (!compile_shader(vertex_source, fragment_source, shader))
+    if (!compile_shader(language, vertex_source, fragment_source, shader))
     {
         g_shader_programs[asset_index] = shader;
     }
 }
+// MODIFIED FEATURE END
 
 void Display::use_shader(asset_index_t asset_index)
 {
@@ -4062,8 +4081,11 @@ uint32_t Display::model_get_vertex_format(model_id_t id)
 void Display::model_free(model_id_t)
 { }
 
-void Display::bind_and_compile_shader(asset_index_t, const std::string& vertex_source, const std::string& fragment_source)
+// MODIFIED FEATURE (signature: annika marie schlögel)
+// included shader language as a parameter for ANGLE shader converter to read
+void Display::bind_and_compile_shader(asset_index_t, asset::ShaderLanguage, const std::string& vertex_source, const std::string& fragment_source)
 { }
+// MODIFIED FEATURE END
 
 void Display::use_shader(asset_index_t)
 { }
