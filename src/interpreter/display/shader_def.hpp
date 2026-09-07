@@ -1,5 +1,7 @@
 #include <string>
 
+#include "ogm/asset/ShaderLanguage.hpp"
+
 namespace ogm { namespace interpreter
 {
     extern const char* k_vertex_shader_pre;
@@ -19,5 +21,8 @@ namespace ogm { namespace interpreter
     // essl pipeline
     std::string fix_vertex_shader_source_essl(std::string);
     std::string fix_fragment_shader_source_essl(std::string);
+
+    std::string prepare_vertex_shader_source(asset::ShaderLanguage language, std::string source);
+    std::string prepare_fragment_shader_source(asset::ShaderLanguage language, std::string source);
     // NEW FEATURE END
 }}

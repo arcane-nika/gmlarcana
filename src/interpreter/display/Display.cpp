@@ -616,8 +616,8 @@ namespace
         fragment_source = fragment_result.source;*/
         // NEW FEATURE END
 
-        vertex_source = fix_vertex_shader_source_desktop(vertex_source);
-        fragment_source = fix_fragment_shader_source_desktop(fragment_source);
+        vertex_source = prepare_vertex_shader_source(language, vertex_source);
+        fragment_source = prepare_fragment_shader_source(language, fragment_source);
 
         // compile
 

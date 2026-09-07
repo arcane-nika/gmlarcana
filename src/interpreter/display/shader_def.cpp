@@ -226,8 +226,7 @@ std::string fix_fragment_shader_source_desktop(std::string fragment_source)
 
 // NEW FEATURE (signature: annika marie schlögel)
 // essl path
-std::string fix_vertex_shader_source_essl(
-    std::string vertex_source)
+std::string fix_vertex_shader_source_essl(std::string vertex_source)
 {
     if (vertex_source.empty())
         return vertex_source;
@@ -235,13 +234,30 @@ std::string fix_vertex_shader_source_essl(
     return g_essl_vpre + vertex_source;
 }
 
-std::string fix_fragment_shader_source_essl(
-    std::string fragment_source)
+std::string fix_fragment_shader_source_essl(std::string fragment_source)
 {
     if (fragment_source.empty())
         return fragment_source;
 
     return g_essl_fpre + fragment_source;
+}
+
+// decide which pipeline to take, this is a general function
+std::string prepare_vertex_shader_source(asset::ShaderLanguage language, std::string source)
+{
+    if (language == asset::ShaderLanguage::GLSLES)
+        return fix_vertex_shader_source_essl(source);
+
+    return fix_vertex_shader_source_desktop(source);
+}
+
+// decide which pipeline to take, this is a general function
+std::string prepare_fragment_shader_source(asset::ShaderLanguage language, std::string source)
+{
+    if (language == asset::ShaderLanguage::GLSLES)
+        return fix_fragment_shader_source_essl(source);
+
+    return fix_fragment_shader_source_desktop(source);
 }
 // NEW FEATURE END
 
