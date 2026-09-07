@@ -109,6 +109,20 @@ void DoAlphaTest(vec4 col)
 }
 )";
 
+// NEW FEATURE (signature: annika marie schlögel)
+// essl pipeline
+const std::string g_essl_vpre =
+    std::string("#version 100\n")
+    + g_shr_vpre_definitions
+    + g_shr_vpre_uniform
+    + g_shr_vpre_functions;
+
+const std::string g_essl_fpre =
+    std::string("#version 100\nprecision mediump float;\n")
+    + g_shr_fpre_uniform
+    + g_shr_fpre_functions;
+// NEW FEATURE END
+
 const std::string g_shr_fpre =
     std::string() + g_shr_glsl_version + g_shr_fpre_out + g_shr_fpre_uniform + g_shr_fpre_functions;
 
@@ -173,7 +187,9 @@ namespace
     }
 }
 
-std::string fix_vertex_shader_source(std::string vertex_source)
+// CHANGED NAME (signature: annika marie schlögel)
+// split the desktop glsl and essl paths into two functions
+std::string fix_vertex_shader_source_desktop(std::string vertex_source)
 {
     if (vertex_source == "")
     {
@@ -189,8 +205,9 @@ std::string fix_vertex_shader_source(std::string vertex_source)
     
     return vertex_source;
 }
-
-std::string fix_fragment_shader_source(std::string fragment_source)
+// CHANGED NAME (signature: annika marie schlögel)
+// split the desktop glsl and essl paths into two functions
+std::string fix_fragment_shader_source_desktop(std::string fragment_source)
 {
     if (fragment_source == "")
     {
@@ -206,5 +223,26 @@ std::string fix_fragment_shader_source(std::string fragment_source)
     
     return fragment_source;
 }
+
+// NEW FEATURE (signature: annika marie schlögel)
+// essl path
+std::string fix_vertex_shader_source_essl(
+    std::string vertex_source)
+{
+    if (vertex_source.empty())
+        return vertex_source;
+
+    return g_essl_vpre + vertex_source;
+}
+
+std::string fix_fragment_shader_source_essl(
+    std::string fragment_source)
+{
+    if (fragment_source.empty())
+        return fragment_source;
+
+    return g_essl_fpre + fragment_source;
+}
+// NEW FEATURE END
 
 }

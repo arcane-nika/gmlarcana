@@ -577,8 +577,47 @@ namespace
 
         // adjust source
 
-        vertex_source = fix_vertex_shader_source(vertex_source);
-        fragment_source = fix_fragment_shader_source(fragment_source);
+        // NEW FEATURE (signature: annika marie schlögel)
+        // translate shader source to GLSL if necessary
+        if (language == asset::ShaderLanguage::HLSL9)
+        {
+            std::cout
+                << "HLSL9 shader translation is not implemented yet."
+                << std::endl;
+
+            return true;
+        }
+
+        /*auto vertex_result = translate_shader(
+            language,
+            ShaderStage::Vertex,
+            vertex_source
+        );
+
+        auto fragment_result = translate_shader(
+            language,
+            ShaderStage::Fragment,
+            fragment_source
+        );
+
+        if (!vertex_result.success)
+        {
+            std::cout << vertex_result.log << std::endl;
+            return true;
+        }
+
+        if (!fragment_result.success)
+        {
+            std::cout << fragment_result.log << std::endl;
+            return true;
+        }
+
+        vertex_source = vertex_result.source;
+        fragment_source = fragment_result.source;*/
+        // NEW FEATURE END
+
+        vertex_source = fix_vertex_shader_source_desktop(vertex_source);
+        fragment_source = fix_fragment_shader_source_desktop(fragment_source);
 
         // compile
 

@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string_view>
+
 namespace ogm
 {
 
